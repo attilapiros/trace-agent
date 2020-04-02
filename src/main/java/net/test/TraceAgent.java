@@ -1,4 +1,4 @@
-package net.test; 
+package net.test;
 
 import net.test.interceptor.*;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -13,13 +13,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class TraceAgent {
 
-  private static TimingInterceptorNano timingInterceptorNano = new TimingInterceptorNano();
-  private static TimingInterceptorMs timingInterceptorMs = new TimingInterceptorMs();
-  private static StackTraceInterceptor stackTraceInterceptor = new StackTraceInterceptor();
-
   public static void premain(String arguments, Instrumentation instrumentation) {
     try {
-      try(BufferedReader buffReader = 
+      try(BufferedReader buffReader =
           new BufferedReader(
             new InputStreamReader(
               TraceAgent.class.getResourceAsStream("/actions.txt")))) {
@@ -27,30 +23,37 @@ public class TraceAgent {
         while ((line = buffReader.readLine()) != null) {
           String[] actionWithArgs = line.split("\\s+");
           final Object interceptor;
+          if (actionWithArgs.length == 3) {
+            final String action = actionWithArgs[0];
+            final String className = actionWithArgs[1];
+            final String methodName = actionWithArgs[2];
 
-          final String action = actionWithArgs[0];
-          final String className = actionWithArgs[1];
-          final String methodName = actionWithArgs[2];
-
-          if (action.equals("elapsed_time_in_nano")) {
-            interceptor = timingInterceptorNano;
-          } else if (action.equals("elapsed_time_in_ms")) {
-            interceptor = timingInterceptorMs;
-          } else if (action.equals("stack_trace")) {
-            interceptor = stackTraceInterceptor;
+            if (action.equals("elapsed_time_in_nano")) {
+              interceptor = new TimingInterceptorNano();
+            } else if (action.equals("elapsed_time_in_ms")) {
+              interceptor = new TimingInterceptorMs();
+            } else if (action.equals("stack_trace")) {
+              interceptor = new StackTraceInterceptor();
+            } else if (action.equals("trace_args")) {
+              interceptor = new TraceArgsInterceptor();
+            } else {
+              interceptor = null;
+            }
+            if (interceptor != null) {
+              new AgentBuilder.Default()
+                .type(named(className))
+                .transform((builder, type, classLoader, module) ->
+                    builder.method(named(methodName))
+                    .intercept(MethodDelegation.to(interceptor)))
+                .installOn(instrumentation);
+            }
           } else {
-            interceptor = null;
-          }
-          if (interceptor != null) {
-            new AgentBuilder.Default()
-              .type(named(className))
-              .transform((builder, type, classLoader, module) -> 
-                  builder.method(named(methodName))
-                  .intercept(MethodDelegation.to(interceptor)))
-              .installOn(instrumentation);
+            System.err.println("TraceAgent skips the rule: " + line);
           }
         }
-              }
-    } catch (IOException e) { }
+      }
+    } catch (IOException e) {
+      e.printStackTrace(System.err);
+    }
   }
 }

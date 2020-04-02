@@ -17,6 +17,7 @@ class MyException extends Exception {
 
 public class StackTraceInterceptor {
 
+  @RuntimeType
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception  {
     Exception e = new MyException();
     StackTraceElement[] stElements = Thread.currentThread().getStackTrace();

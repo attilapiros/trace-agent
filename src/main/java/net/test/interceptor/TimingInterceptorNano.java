@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 
 public class TimingInterceptorNano {
 
+  @RuntimeType
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception  {
     long start = System.nanoTime();
     try {

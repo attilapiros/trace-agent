@@ -10,7 +10,7 @@ It is much easier to understand how this can be used if I show you it through an
 
 ## The project we would like to trace
 
-Let's say we have a project what we would like analize. In this example its code very simple:
+Let's say we have a project what we would like analyze. In this example its code very simple:
 
 ```java 
 
@@ -20,7 +20,9 @@ public class App {
     public static void main( String[] args )
     {
         new TestClass().test();
-        new TestClass2nd().anotherMethod();
+        TestClass2nd testClass2nd = new TestClass2nd();
+        testClass2nd.anotherMethod();
+        testClass2nd.methodWithArgs("secret", 42);
     }
 }
 
@@ -45,10 +47,13 @@ class TestClass2nd {
       } catch(Exception e) {
       }
   }
+
+  public void methodWithArgs(String str, int i) {
+      System.out.println("methodWithArgs");
+  }
 }
 
 ```
-
 
 Which can be executed as:
 
@@ -56,14 +61,16 @@ Which can be executed as:
 $ java -jar testartifact-1.0-SNAPSHOT.jar
 Hello World!
 2nd Hello World!
+methodWithArgs
 ```
 
 ## Let's trace it
 
 If we would like to:
-- measuere the elapsed time of the `test` method in nanosecond 
+- measure the elapsed time of the `test` method in nanosecond
 - see the call stack at the beginning of `anotherMethod`
 - and measure the elapsed time in milliseconds also within the `anotherMethod` 
+- the trace the actual argument values used for calling the method `methodWithArgs`
 
 without touching the testartifact then we could set up the `actions.txt` (the config of the trace agent) like this:
 
@@ -71,6 +78,7 @@ without touching the testartifact then we could set up the `actions.txt` (the co
 elapsed_time_in_nano net.test.TestClass test
 elapsed_time_in_ms net.test.TestClass2nd anotherMethod
 stack_trace net.test.TestClass2nd anotherMethod
+trace_args net.test.TestClass2nd methodWithArgs
 ```
 
 This `actions.txt` is part of the trace agent jar as a resource (no recompile/rebuild is needed just edit the file within the jar).
@@ -86,6 +94,8 @@ TraceAgent (stack trace):
         at net.test.App.main(App.java:8)
 2nd Hello World!
 TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 100 ms
+TraceAgent (trace_args): `public void net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]
+methodWithArgs
 ```
 
 
