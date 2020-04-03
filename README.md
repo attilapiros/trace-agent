@@ -33,8 +33,7 @@ class TestClass {
       System.out.println("Hello World!");
       try {
         Thread.sleep(100);
-      } catch(Exception e) {
-      }
+      } catch(Exception e) { }
   }
 }
 
@@ -44,12 +43,12 @@ class TestClass2nd {
       System.out.println("2nd Hello World!");
       try {
         Thread.sleep(100);
-      } catch(Exception e) {
-      }
+      } catch(Exception e) { }
   }
 
-  public void methodWithArgs(String str, int i) {
+  public int methodWithArgs(String str, int i) {
       System.out.println("methodWithArgs");
+      return 12;
   }
 }
 
@@ -71,6 +70,7 @@ If we would like to:
 - see the call stack at the beginning of `anotherMethod`
 - and measure the elapsed time in milliseconds also within the `anotherMethod` 
 - the trace the actual argument values used for calling the method `methodWithArgs`
+- the trace the return value of the method `methodWithArgs` call
 
 without touching the testartifact then we could set up the `actions.txt` (the config of the trace agent) like this:
 
@@ -79,6 +79,7 @@ elapsed_time_in_nano net.test.TestClass test
 elapsed_time_in_ms net.test.TestClass2nd anotherMethod
 stack_trace net.test.TestClass2nd anotherMethod
 trace_args net.test.TestClass2nd methodWithArgs
+trace_retval net.test.TestClass2nd methodWithArgs
 ```
 
 This `actions.txt` is part of the trace agent jar as a resource (no recompile/rebuild is needed just edit the file within the jar).
@@ -96,6 +97,7 @@ TraceAgent (stack trace):
 TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 100 ms
 TraceAgent (trace_args): `public void net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]
 methodWithArgs
+TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
 

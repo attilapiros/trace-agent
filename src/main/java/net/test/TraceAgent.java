@@ -36,6 +36,8 @@ public class TraceAgent {
               interceptor = new StackTraceInterceptor();
             } else if (action.equals("trace_args")) {
               interceptor = new TraceArgsInterceptor();
+            } else if (action.equals("trace_retval")) {
+              interceptor = new TraceRetValueInterceptor();
             } else {
               interceptor = null;
             }
