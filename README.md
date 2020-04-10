@@ -108,3 +108,26 @@ The config format is simple lines with the following structure:
 ```
 <action-name> <class-name> <method-name>
 ```
+
+## Using regular expressions for matching to class and method names
+
+When the class name or the method is given in the format of `REGEXP(<pattern>)` then
+[java regular expression](https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html#sum) is used for matching.
+
+Example `actions.txt` to match for every methods of the classes within the package `net.test`:
+
+```
+elapsed_time_in_ms REGEXP(net\.test\..*) REGEXP(.*)
+```
+
+And the output will be something like this:
+
+```
+Hello World!
+TraceAgent (timing): `public void net.test.TestClass.test()` took 102 ms
+2nd Hello World!
+TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 103 ms
+methodWithArgs
+TraceAgent (timing): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int)` took 18 ms
+TraceAgent (timing): `public static void net.test.App.main(java.lang.String[])` took 255 ms
+```

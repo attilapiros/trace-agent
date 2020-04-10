@@ -3,15 +3,34 @@ package net.test;
 import net.test.interceptor.*;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.description.NamedElement;
+import net.bytebuddy.matcher.ElementMatcher;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class TraceAgent {
+
+  public static <T extends NamedElement> ElementMatcher.Junction<T> toMatcher(String inputExpression) {
+    final ElementMatcher.Junction<T> res;
+    int i = inputExpression.indexOf('(');
+    if (i == -1) {
+      res = named(inputExpression);
+    } else {
+      String matchFn = inputExpression.substring(0, i);
+      String pattern = inputExpression.substring(i + 1, inputExpression.length() - 1);
+      if (matchFn.equals("REGEXP")) {
+        res = nameMatches(pattern);
+      } else {
+        res = named(pattern);
+      }
+    }
+    return res;
+  }
 
   public static void premain(String arguments, Instrumentation instrumentation) {
     try {
@@ -25,8 +44,8 @@ public class TraceAgent {
           final Object interceptor;
           if (actionWithArgs.length == 3) {
             final String action = actionWithArgs[0];
-            final String className = actionWithArgs[1];
-            final String methodName = actionWithArgs[2];
+            final String classMatcherExp = actionWithArgs[1];
+            final String methodMatcherExp= actionWithArgs[2];
 
             if (action.equals("elapsed_time_in_nano")) {
               interceptor = new TimingInterceptorNano();
@@ -43,9 +62,9 @@ public class TraceAgent {
             }
             if (interceptor != null) {
               new AgentBuilder.Default()
-                .type(named(className))
+                .type(toMatcher(classMatcherExp))
                 .transform((builder, type, classLoader, module) ->
-                    builder.method(named(methodName))
+                    builder.method(toMatcher(methodMatcherExp))
                     .intercept(MethodDelegation.to(interceptor)))
                 .installOn(instrumentation);
             }
