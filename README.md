@@ -152,7 +152,7 @@ this will be `org.apache.spark.SparkContext$.class` (as the object fully qualifi
 Now with `javap` the exact method name can be find out easily, like:
 
 ```
-$ unzip -p jars/spark-core_2.11-2.4.5.jar org/apache/spark/SparkContext$.class > SparkContext$.class                                                                                                  1 ↵
+$ unzip -p jars/spark-core_2.11-2.4.5.jar org/apache/spark/SparkContext$.class > SparkContext$.class
 $ javap -p SparkContext$.class | grep createTaskScheduler
   public scala.Tuple2<org.apache.spark.scheduler.SchedulerBackend, org.apache.spark.scheduler.TaskScheduler> org$apache$spark$SparkContext$$createTaskScheduler(org.apache.spark.SparkContext, java.lang.String, java.lang.String);
 ```
