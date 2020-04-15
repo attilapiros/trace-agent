@@ -134,22 +134,22 @@ TraceAgent (timing): `public static void net.test.App.main(java.lang.String[])` 
 
 ## Some complex examples how to specify a javaagent
 
-Altough trace agent is a general tool I would like to write up some usecases where this tool can be useful for you
+Although trace agent is a general tool I would like to write up some use cases where this tool can be useful for you
 (and also for myself for future reference).
 
 ### For JVM based languages other than Java (Scala, Clojure, Kotlin, ...)
 
 If you can run an experiment you can use the regexp based matching to find out what pattern you should use exactly.
-if experimenting is not possible then you can use `javap` to find out what will be the final class and method name.
+When experimenting is not possible then you can use `javap` to find out what will be the final class and method name.
 
 #### Example
 
 For example in case of a Spark Core method (which uses Scala) this can be done as follows. Let's say you would like to match for
 [createTaskScheduler](https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/SparkContext.scala#L2757).
-First you should find out the classs file. As from a Scala object the compiler generates a class which ends with `$` in our case
+First you should find out the class file. As from a Scala object the compiler generates a class which ends with `$` in our case
 this will be `org.apache.spark.SparkContext$.class` (as the object fully qualified name is `org.apache.spark.SparkContext`).
 
-Now with javap the exact method name can be find out easily, like:
+Now with `javap` the exact method name can be find out easily, like:
 
 ```
 $ unzip -p jars/spark-core_2.11-2.4.5.jar org/apache/spark/SparkContext$.class > SparkContext$.class                                                                                                  1 ↵
@@ -157,7 +157,7 @@ $ javap -p SparkContext$.class | grep createTaskScheduler
   public scala.Tuple2<org.apache.spark.scheduler.SchedulerBackend, org.apache.spark.scheduler.TaskScheduler> org$apache$spark$SparkContext$$createTaskScheduler(org.apache.spark.SparkContext, java.lang.String, java.lang.String);
 ```
 
-So to measure the ellapsed time within this method the actions can be:
+So to measure the elapsed time within this method the actions can be:
 
 ```
 elapsed_time_in_ms org.apache.spark.SparkContext$ org$apache$spark$SparkContext$$createTaskScheduler
@@ -165,7 +165,7 @@ elapsed_time_in_ms org.apache.spark.SparkContext$ org$apache$spark$SparkContext$
 
 ### Spark driver client mode
 
-In case of client mode when the driver is at node where you call spark-submit at you can simply start the spark with the config
+In case of client mode when the driver is at node where you call spark-submit at you can simply start Spark with the config
 `spark.driver.extraJavaOptions` where you can specify `-javagent` with the trace-agent jar location:
 
 Example (when you are in the same directory where the trace-agent jar is stored):
