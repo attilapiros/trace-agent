@@ -3,6 +3,7 @@ package net.test.interceptor;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.test.TraceAgent;
 
 import java.util.function.*;
 import java.lang.reflect.Method;
@@ -11,7 +12,7 @@ import java.util.concurrent.Callable;
 
 class MyException extends Exception {
   public String toString() {
-    return "TraceAgent (stack trace):";
+    return TraceAgent.getTimeStamp() + " TraceAgent (stack trace):";
   }
 }
 

@@ -4,6 +4,7 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.test.TraceAgent;
 
 import java.util.function.*;
 import java.lang.reflect.Method;
@@ -14,7 +15,7 @@ public class TraceArgsInterceptor {
 
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception  {
-    System.out.println("TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments));
+    System.out.println(TraceAgent.getTimeStamp() + " TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments));
     return callable.call();
   }
 }

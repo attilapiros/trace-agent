@@ -3,6 +3,7 @@ package net.test.interceptor;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.test.TraceAgent;
 
 import java.util.function.*;
 import java.lang.reflect.Method;
@@ -16,7 +17,7 @@ public class TimingInterceptorMs {
     try {
       return callable.call();
     } finally {
-      System.out.println("TraceAgent (timing): `" + method + "` took " + (System.currentTimeMillis() - start) + " ms");
+      System.out.println(TraceAgent.getTimeStamp() + " TraceAgent (timing): `" + method + "` took " + (System.currentTimeMillis() - start) + " ms");
     }
   }
 }

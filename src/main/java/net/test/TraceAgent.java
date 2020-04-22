@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
@@ -76,5 +78,9 @@ public class TraceAgent {
     } catch (IOException e) {
       e.printStackTrace(System.err);
     }
+  }
+
+  public static String getTimeStamp() {
+    return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
   }
 }
