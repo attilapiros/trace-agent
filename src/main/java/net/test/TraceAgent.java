@@ -1,80 +1,111 @@
 package net.test;
 
-import net.test.interceptor.*;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.description.NamedElement;
-import net.bytebuddy.matcher.ElementMatcher;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.lang.instrument.Instrumentation;
-
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class TraceAgent {
 
-  public static <T extends NamedElement> ElementMatcher.Junction<T> toMatcher(String inputExpression) {
-    final ElementMatcher.Junction<T> res;
-    int i = inputExpression.indexOf('(');
-    if (i == -1) {
-      res = named(inputExpression);
+  private TraceAgentArgs traceAgentArgs;
+
+  private Instrumentation instrumentation;
+
+  private TraceAction readAction(String line) {
+    String[] actionWithArgs = line.split("\\s+");
+    final TraceAction traceAction;
+    if (actionWithArgs.length == 4) {
+      traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
+    } else if (actionWithArgs.length == 3) {
+      traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2]);
     } else {
-      String matchFn = inputExpression.substring(0, i);
-      String pattern = inputExpression.substring(i + 1, inputExpression.length() - 1);
-      if (matchFn.equals("REGEXP")) {
-        res = nameMatches(pattern);
-      } else {
-        res = named(pattern);
-      }
+      traceAction = null;
     }
-    return res;
+    return traceAction;
   }
 
-  public static void premain(String arguments, Instrumentation instrumentation) {
+  private static boolean isBlank(String line) {
+    char[] chars = line.toCharArray();
+    for (char c : chars) {
+      if (c != ' ' && c != '\t') {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private static boolean isComment(String line) {
+    return line.charAt(0) == '#';
+  }
+
+  private List<TraceAction> readActions(InputStream in) {
+    List<TraceAction> actions = new ArrayList<TraceAction>();
     try {
-      try(BufferedReader buffReader =
-          new BufferedReader(
-            new InputStreamReader(
-              TraceAgent.class.getResourceAsStream("/actions.txt")))) {
+      try(BufferedReader buffReader = new BufferedReader(new InputStreamReader(in))) {
         String line = null;
         while ((line = buffReader.readLine()) != null) {
-          String[] actionWithArgs = line.split("\\s+");
-          final Object interceptor;
-          if (actionWithArgs.length == 3) {
-            final String action = actionWithArgs[0];
-            final String classMatcherExp = actionWithArgs[1];
-            final String methodMatcherExp= actionWithArgs[2];
-
-            if (action.equals("elapsed_time_in_nano")) {
-              interceptor = new TimingInterceptorNano();
-            } else if (action.equals("elapsed_time_in_ms")) {
-              interceptor = new TimingInterceptorMs();
-            } else if (action.equals("stack_trace")) {
-              interceptor = new StackTraceInterceptor();
-            } else if (action.equals("trace_args")) {
-              interceptor = new TraceArgsInterceptor();
-            } else if (action.equals("trace_retval")) {
-              interceptor = new TraceRetValueInterceptor();
+          // blank lines and comments are skipped
+          if (!isBlank(line) && !isComment(line)) {
+            TraceAction traceAction = readAction(line);
+            if (traceAction == null) {
+              System.err.println("TraceAgent skips the rule: " + line);
             } else {
-              interceptor = null;
+              actions.add(traceAction);
             }
-            if (interceptor != null) {
-              new AgentBuilder.Default()
-                .type(toMatcher(classMatcherExp))
-                .transform((builder, type, classLoader, module) ->
-                    builder.method(toMatcher(methodMatcherExp))
-                    .intercept(MethodDelegation.to(interceptor)))
-                .installOn(instrumentation);
-            }
-          } else {
-            System.err.println("TraceAgent skips the rule: " + line);
           }
         }
       }
     } catch (IOException e) {
       e.printStackTrace(System.err);
     }
+    return actions;
+  }
+
+  private void installActions(List<TraceAction> actions) {
+    for(TraceAction action : actions) {
+      final Object interceptor = action.getActionInterceptor(traceAgentArgs);
+      if (interceptor != null) {
+        new AgentBuilder.Default()
+          .type(action.getClassMatcher())
+          .transform((builder, type, classLoader, module) ->
+              builder.method(action.getMethodMatcher())
+              .intercept(MethodDelegation.to(interceptor)))
+          .installOn(instrumentation);
+      }
+    }
+  }
+
+  private void install() {
+    List<TraceAction> allActions = readActions(TraceAgent.class.getResourceAsStream("/actions.txt"));
+    String externalActionFile = traceAgentArgs.getExternalActionFilePath();
+    if (externalActionFile != null) {
+      try {
+        allActions.addAll(readActions(new FileInputStream(externalActionFile)));
+      } catch (FileNotFoundException fnf) {
+        System.err.println("TraceAgent does not find the external action file: " + externalActionFile);
+      }
+    }
+    installActions(allActions);
+  }
+
+  private TraceAgent(TraceAgentArgs traceAgentArgs, Instrumentation instrumentation) {
+    this.traceAgentArgs = traceAgentArgs;
+    this.instrumentation = instrumentation;
+  }
+
+  public static void premain(String arguments, Instrumentation instrumentation) {
+    TraceAgentArgs traceAgentArgs = new TraceAgentArgs(arguments);
+    TraceAgent traceAgent = new TraceAgent(traceAgentArgs, instrumentation);
+    traceAgent.install();
   }
 }

@@ -109,6 +109,8 @@ The config format is simple lines with the following structure:
 <action-name> <class-name> <method-name>
 ```
 
+Empty lines and lines starting with `#` (comments) are skipped. 
+
 ## Using regular expressions for matching to class and method names
 
 When the class name or the method is given in the format of `REGEXP(<pattern>)` then
@@ -131,6 +133,103 @@ methodWithArgs
 TraceAgent (timing): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int)` took 18 ms
 TraceAgent (timing): `public static void net.test.App.main(java.lang.String[])` took 255 ms
 ```
+
+## Parameterization
+
+The trace agent can be parameterised with key-value pairs in the format of `<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>:<value_N>`.
+The parameters can be given globally or for each rule separately. Using a common format at both places makes the parsing reusable.
+
+Disclaimer: currently parsing is done via simply splitting the strings so commas (,) and colons (:) cannot be used in the values
+(if there is a need then escaping should be introduced in the future).
+
+Not all the parameters can be used at both places. And there will be parameters which make sense only for one specific action only (or for a set of actions).
+
+### Example for common argument (both global and action argument): `isDateLogged`
+
+The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
+This is false by default but via setting it globally this default can be changed:
+
+```
+$  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
+Hello World!
+2020-06-23T12:34:27.746 TraceAgent (timing): `public void net.test.TestClass.test()` took 101212548 nano
+2020-06-23T12:34:27.805 TraceAgent (stack trace)
+	at net.test.TestClass2nd.anotherMethod(App.java)
+	at net.test.App.main(App.java:9)
+2nd Hello World!
+2020-06-23T12:34:27.907 TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 100 ms
+2020-06-23T12:34:27.907 TraceAgent (trace_args): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]
+methodWithArgs
+Tue Jun 23 12:34:27 CEST 2020
+2020-06-23T12:34:27.915 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
+```
+
+Now if you would like to save date time formatting for `elapsed_time_in_nano` you can set the `isDateLogged` to false for that rule:
+
+```
+elapsed_time_in_nano net.test.TestClass test isDateLogged:false
+elapsed_time_in_ms net.test.TestClass2nd anotherMethod
+stack_trace net.test.TestClass2nd anotherMethod
+trace_args net.test.TestClass2nd methodWithArgs
+trace_retval net.test.TestClass2nd methodWithArgs
+```
+
+And when the experiment reexecuted the date time is not logged for nanosecond measure but for other rules:
+
+```
+$  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
+Hello World!
+TraceAgent (timing): `public void net.test.TestClass.test()` took 100895003 nano
+2020-06-23T12:39:25.754 TraceAgent (stack trace)
+	at net.test.TestClass2nd.anotherMethod(App.java)
+	at net.test.App.main(App.java:9)
+2nd Hello World!
+2020-06-23T12:39:25.862 TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 101 ms
+2020-06-23T12:39:25.863 TraceAgent (trace_args): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]
+methodWithArgs
+Tue Jun 23 12:39:25 CEST 2020
+2020-06-23T12:39:25.875 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
+```
+
+### Trace agent global only parameters
+
+There are parameters which configures the trace agent globally.
+
+#### Specifying formatting of date times in the action logs
+
+The `dateTimeFormat` can be used to specify the formatting for date times:
+
+```
+$  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true,dateTimeFormat:YYYY-MM-dd'T'hh:mm" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar                            134 ↵
+Hello World!
+TraceAgent (timing): `public void net.test.TestClass.test()` took 100606015 nano
+2020-06-23T12:50 TraceAgent (stack trace)
+	at net.test.TestClass2nd.anotherMethod(App.java)
+	at net.test.App.main(App.java:9)
+2nd Hello World!
+2020-06-23T12:50 TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 100 ms
+2020-06-23T12:50 TraceAgent (trace_args): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]
+methodWithArgs
+Tue Jun 23 12:50:33 CEST 2020
+2020-06-23T12:50 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
+```
+
+The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME). 
+For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+
+#### The external actions file
+
+It is possible to specify an external actions file. For example if the actions file in the current directory:
+
+```
+java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="actionsFile:./actions.txt" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
+```
+
+In this case all the rules are used from both the internal and external action files: like the two list would be merged together.
+
+In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
+Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
+
 
 ## Some complex examples how to specify a javaagent
 
