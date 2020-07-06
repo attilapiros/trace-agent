@@ -1,6 +1,7 @@
 package net.test.interceptor;
 
 import net.test.ArgUtils;
+import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
 
@@ -17,14 +18,19 @@ import java.util.concurrent.Callable;
 
 public class TimingInterceptorNano {
 
-  private static List<String> KNOWN_ARGS = 
-    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED);
+  private static String LOG_THRESHOLD_NANO = "log_threshold_nano";
+
+  private static List<String> KNOWN_ARGS =
+          Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_NANO);
 
   private CommonActionArgs commonActionArgs;
 
+  private final long logThresholdNano;
+
   public TimingInterceptorNano(String actionArgs, DefaultArguments defaults) {
-    Map<String, String> parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
+    ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
+    this.logThresholdNano = parsed.parseLong(LOG_THRESHOLD_NANO, 0);
   }
 
 
@@ -34,8 +40,11 @@ public class TimingInterceptorNano {
     try {
       return callable.call();
     } finally {
-      System.out.println(
-        commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (System.nanoTime() - start) + " nano"));
+      long end = System.nanoTime();
+      if(this.logThresholdNano == 0 || end - start >= this.logThresholdNano) {
+        System.out.println(
+                commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " nano"));
+      }
     }
   }
 }

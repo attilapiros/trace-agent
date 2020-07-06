@@ -1,6 +1,7 @@
 package net.test.interceptor;
 
 import net.test.ArgUtils;
+import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
 
@@ -18,22 +19,31 @@ import java.util.concurrent.Callable;
 
 public class TraceRetValueInterceptor {
 
+  private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
+
   private static List<String> KNOWN_ARGS = 
-    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED);
+    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
 
   private CommonActionArgs commonActionArgs;
 
+  private final long logThresholdMs;
+
   public TraceRetValueInterceptor(String actionArgs, DefaultArguments defaults) {
-    Map<String, String> parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
+    ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
+    this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
   }
 
 
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception  {
+    long start = System.currentTimeMillis();
     Object retVal = callable.call();
-    System.out.println(
-      commonActionArgs.addPrefix("TraceAgent (trace_retval): `" + method + " returns with " + retVal));
+    long end = System.currentTimeMillis();
+    if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+      System.out.println(
+              commonActionArgs.addPrefix("TraceAgent (trace_retval): `" + method + " returns with " + retVal));
+    }
     return retVal;
   }
 }

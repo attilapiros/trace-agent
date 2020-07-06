@@ -1,6 +1,7 @@
 package net.test.interceptor;
 
 import net.test.ArgUtils;
+import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
 
@@ -30,18 +31,9 @@ public class CounterInterceptor {
   private long counter = 0;
 
   public CounterInterceptor(String actionArgs, DefaultArguments defaults) {
-    Map<String, String> parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
+    ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
-    String countFrequencyStr = parsed.get(COUNT_FREQUENCY);
-    int countFrequencyInt = 100;
-    if (countFrequencyStr != null) {
-      try {
-        countFrequencyInt = Integer.valueOf(countFrequencyStr);
-      } catch (NumberFormatException nfe) {
-        System.err.println("TraceAgent (counter) invalid `" + COUNT_FREQUENCY + "` param value: `" + countFrequencyStr + "` using the default: " + countFrequencyInt);
-      }
-    }
-    this.countFrequency = countFrequencyInt;
+    this.countFrequency = parsed.parseInt(COUNT_FREQUENCY, 100);
   }
 
 

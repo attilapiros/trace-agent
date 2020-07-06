@@ -1,6 +1,7 @@
 package net.test.interceptor;
 
 import net.test.ArgUtils;
+import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
 
@@ -31,22 +32,34 @@ class MyException extends Exception {
 
 public class StackTraceInterceptor {
 
+  private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
+
   private static List<String> KNOWN_ARGS = 
-    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED);
+    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
 
   private CommonActionArgs commonActionArgs;
 
+  private final long logThresholdMs;
+
   public StackTraceInterceptor(String actionArgs, DefaultArguments defaults) {
-    Map<String, String> parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
+    ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
+    this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
   }
 
   @RuntimeType
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception  {
-    Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
-    StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-    e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
-    e.printStackTrace(System.out);
-    return callable.call();
+    long start = System.currentTimeMillis();
+    try {
+      return callable.call();
+    } finally {
+      long end = System.currentTimeMillis();
+      if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+        Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
+        StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+        e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
+        e.printStackTrace(System.out);
+      }
+    }
   }
 }
