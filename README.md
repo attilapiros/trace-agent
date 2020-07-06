@@ -332,3 +332,26 @@ TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecuto
 TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecutorBackend.onConnected(org.apache.spark.rpc.RpcAddress)` took 0 ms
 TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecutorBackend.onConnected(org.apache.spark.rpc.RpcAddress)` took 0 ms
 ```
+
+# The counter action
+
+This action can be used to count the number of of method calls. It has one parameter `count_frequency` which specifies after how many calls there will be a printout.
+Its output will be printed before the targeted method body is executed.
+
+Example:
+
+```
+  counter net.test.TestClass2nd calledSeveralTimes count_frequency:4
+```
+
+The output is will be like:
+
+```
+TraceAgent (counter): 4
+TraceAgent (counter): 8
+TraceAgent (counter): 12
+TraceAgent (counter): 16
+TraceAgent (counter): 20
+TraceAgent (counter): 24
+TraceAgent (counter): 28
+```

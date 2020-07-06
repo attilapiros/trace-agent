@@ -42,6 +42,8 @@ class TraceAction {
       interceptor = new TraceArgsInterceptor(actionArgs, defaultArguments);
     } else if (actionId.equals("trace_retval")) {
       interceptor = new TraceRetValueInterceptor(actionArgs, defaultArguments);
+    } else if (actionId.equals("counter")) {
+      interceptor = new CounterInterceptor(actionArgs, defaultArguments);
     } else {
       System.err.println("TraceAgent detected an invalid action: " + actionId);
       interceptor = null;
