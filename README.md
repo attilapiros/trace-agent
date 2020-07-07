@@ -107,7 +107,7 @@ TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java
 The config format is simple lines with the following structure:
 
 ```
-<action-name> <class-name> <method-name> <params:Optional>
+<action-name> <class-name> <method-name> <optionalParameters>
 ```
 
 Empty lines and lines starting with `#` (comments) are skipped. 
@@ -399,4 +399,3 @@ jar uf trace-agent-1.0-SNAPSHOT.jar actions.txt
 
 # done
 ```
-
