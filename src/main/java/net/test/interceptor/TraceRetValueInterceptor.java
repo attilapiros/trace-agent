@@ -37,9 +37,9 @@ public class TraceRetValueInterceptor {
 
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception  {
-    long start = System.currentTimeMillis();
+    long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     Object retVal = callable.call();
-    long end = System.currentTimeMillis();
+    long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
       System.out.println(
               commonActionArgs.addPrefix("TraceAgent (trace_retval): `" + method + " returns with " + retVal));
