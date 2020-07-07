@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface DefaultArguments {
 
-  DateTimeFormatter getDateTimeFormatter(); 
+  DateTimeFormatter getDateTimeFormatter();
 
-  boolean isDateLogged(); 
+  boolean isDateLogged();
 }

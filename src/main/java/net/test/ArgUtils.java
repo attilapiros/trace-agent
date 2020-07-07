@@ -9,7 +9,7 @@ public class ArgUtils {
     List<String> usedKeys = new ArrayList<String>();
     ArgumentsCollection parsedArgs = new ArgumentsCollection();
     if (arguments != null && !arguments.isEmpty()) {
-      for (String keyValue: arguments.split(",")) {
+      for (String keyValue : arguments.split(",")) {
         String[] kv = keyValue.split(":");
         if (kv.length >= 2) {
           final String key = kv[0];

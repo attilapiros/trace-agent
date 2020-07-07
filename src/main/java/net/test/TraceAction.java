@@ -19,7 +19,8 @@ class TraceAction {
 
   private final String actionArgs;
 
-  public TraceAction(String actionId, String classMatcherExp, String methodMatcherExp, String actionArgs) {
+  public TraceAction(
+      String actionId, String classMatcherExp, String methodMatcherExp, String actionArgs) {
     this.actionId = actionId;
     this.classMatcherExp = classMatcherExp;
     this.methodMatcherExp = methodMatcherExp;

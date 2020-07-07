@@ -1,4 +1,3 @@
-
 package net.test;
 
 import java.time.format.DateTimeFormatter;
@@ -17,13 +16,13 @@ public class CommonActionArgs {
     final String isDateLoggedStr = parsedActionArgs.get(IS_DATE_LOGGED);
     if (isDateLoggedStr == null) {
       if (defaults.isDateLogged()) {
-        dateTimeFormatter = defaults.getDateTimeFormatter(); 
+        dateTimeFormatter = defaults.getDateTimeFormatter();
       } else {
         dateTimeFormatter = null;
       }
     } else {
       if (Boolean.valueOf(isDateLoggedStr)) {
-        dateTimeFormatter = defaults.getDateTimeFormatter(); 
+        dateTimeFormatter = defaults.getDateTimeFormatter();
       } else {
         dateTimeFormatter = null;
       }

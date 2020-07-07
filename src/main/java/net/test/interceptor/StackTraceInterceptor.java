@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 class MyException extends Exception {
-  
+
   private final String prefix;
 
   public MyException(String prefix) {
@@ -34,8 +34,8 @@ public class StackTraceInterceptor {
 
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
-  private static List<String> KNOWN_ARGS = 
-    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
+  private static List<String> KNOWN_ARGS =
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
 
   private CommonActionArgs commonActionArgs;
 
@@ -48,13 +48,13 @@ public class StackTraceInterceptor {
   }
 
   @RuntimeType
-  public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception  {
+  public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
     long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     try {
       return callable.call();
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
-      if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+      if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
         Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
         StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
         e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));

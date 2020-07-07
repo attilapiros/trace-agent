@@ -25,7 +25,9 @@ public class TraceAgent {
     String[] actionWithArgs = line.split("\\s+");
     final TraceAction traceAction;
     if (actionWithArgs.length == 4) {
-      traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
+      traceAction =
+          new TraceAction(
+              actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
     } else if (actionWithArgs.length == 3) {
       traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2]);
     } else {
@@ -43,7 +45,7 @@ public class TraceAgent {
     }
     return true;
   }
-  
+
   private static boolean isComment(String line) {
     return line.charAt(0) == '#';
   }
@@ -51,7 +53,7 @@ public class TraceAgent {
   private List<TraceAction> readActions(InputStream in) {
     List<TraceAction> actions = new ArrayList<TraceAction>();
     try {
-      try(BufferedReader buffReader = new BufferedReader(new InputStreamReader(in))) {
+      try (BufferedReader buffReader = new BufferedReader(new InputStreamReader(in))) {
         String line = null;
         while ((line = buffReader.readLine()) != null) {
           // blank lines and comments are skipped
@@ -72,27 +74,31 @@ public class TraceAgent {
   }
 
   private void installActions(List<TraceAction> actions) {
-    for(TraceAction action : actions) {
+    for (TraceAction action : actions) {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
         new AgentBuilder.Default()
-          .type(action.getClassMatcher())
-          .transform((builder, type, classLoader, module) ->
-              builder.method(action.getMethodMatcher())
-              .intercept(MethodDelegation.to(interceptor)))
-          .installOn(instrumentation);
+            .type(action.getClassMatcher())
+            .transform(
+                (builder, type, classLoader, module) ->
+                    builder
+                        .method(action.getMethodMatcher())
+                        .intercept(MethodDelegation.to(interceptor)))
+            .installOn(instrumentation);
       }
     }
   }
 
   private void install() {
-    List<TraceAction> allActions = readActions(TraceAgent.class.getResourceAsStream("/actions.txt"));
+    List<TraceAction> allActions =
+        readActions(TraceAgent.class.getResourceAsStream("/actions.txt"));
     String externalActionFile = traceAgentArgs.getExternalActionFilePath();
     if (externalActionFile != null) {
       try {
         allActions.addAll(readActions(new FileInputStream(externalActionFile)));
       } catch (FileNotFoundException fnf) {
-        System.err.println("TraceAgent does not find the external action file: " + externalActionFile);
+        System.err.println(
+            "TraceAgent does not find the external action file: " + externalActionFile);
       }
     }
     installActions(allActions);

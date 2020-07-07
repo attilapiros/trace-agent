@@ -19,8 +19,8 @@ public class TimingInterceptorMs {
 
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
-  private static List<String> KNOWN_ARGS = 
-    Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
+  private static List<String> KNOWN_ARGS =
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
 
   private CommonActionArgs commonActionArgs;
 
@@ -33,15 +33,16 @@ public class TimingInterceptorMs {
   }
 
   @RuntimeType
-  public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception  {
+  public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
     long start = System.currentTimeMillis();
     try {
       return callable.call();
     } finally {
       long end = System.currentTimeMillis();
-      if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+      if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
         System.out.println(
-                commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " ms"));
+            commonActionArgs.addPrefix(
+                "TraceAgent (timing): `" + method + "` took " + (end - start) + " ms"));
       }
     }
   }
