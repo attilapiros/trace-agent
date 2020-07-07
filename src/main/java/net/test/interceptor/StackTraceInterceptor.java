@@ -49,11 +49,11 @@ public class StackTraceInterceptor {
 
   @RuntimeType
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception  {
-    long start = System.currentTimeMillis();
+    long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     try {
       return callable.call();
     } finally {
-      long end = System.currentTimeMillis();
+      long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
       if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
         Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
         StackTraceElement[] stElements = Thread.currentThread().getStackTrace();

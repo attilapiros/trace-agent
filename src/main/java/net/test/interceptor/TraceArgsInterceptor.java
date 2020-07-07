@@ -37,11 +37,11 @@ public class TraceArgsInterceptor {
 
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception  {
-    long start = System.currentTimeMillis();
+    long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     try {
       return callable.call();
     } finally {
-      long end = System.currentTimeMillis();
+      long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
       if(this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
         System.out.println(
                 commonActionArgs.addPrefix("TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments)));
