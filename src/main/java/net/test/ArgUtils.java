@@ -1,16 +1,13 @@
 package net.test;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ArgUtils {
 
-  public static Map<String, String> parseOptionalArgs(List<String> knownKeys, String arguments) {
+  public static ArgumentsCollection parseOptionalArgs(List<String> knownKeys, String arguments) {
     List<String> usedKeys = new ArrayList<String>();
-    Map<String, String> parsedArgs = new HashMap<String, String>();
+    ArgumentsCollection parsedArgs = new ArgumentsCollection();
     if (arguments != null && !arguments.isEmpty()) {
       for (String keyValue: arguments.split(",")) {
         String[] kv = keyValue.split(":");

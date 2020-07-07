@@ -80,6 +80,7 @@ elapsed_time_in_ms net.test.TestClass2nd anotherMethod
 stack_trace net.test.TestClass2nd anotherMethod
 trace_args net.test.TestClass2nd methodWithArgs
 trace_retval net.test.TestClass2nd methodWithArgs
+counter net.test.TestClass2nd methodWithArgs
 ```
 
 This `actions.txt` is part of the trace agent jar as a resource (no recompile/rebuild is needed just edit the file within the jar).
@@ -106,7 +107,7 @@ TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java
 The config format is simple lines with the following structure:
 
 ```
-<action-name> <class-name> <method-name>
+<action-name> <class-name> <method-name> <optionalParameters>
 ```
 
 Empty lines and lines starting with `#` (comments) are skipped. 
@@ -230,6 +231,35 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
+### Summary of Parameters
+
+* `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
+* `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME). 
+  For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+* `count_frequency` (scope: `action` only) Specifies after how many calls there will be a printout. 
+* `log_threshold_ms` (scope: `action` only) This threshold represents the elapsed number of milliseconds after there will be a printout. The default is `0`, which means it should printout on every call. For example, if we only like to log an action when it takes more than 1 second to complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
+* `log_threshold_nano` (scope: `action` only) Similar to `log_threshold_ms` but in nanoseconds. 
+
+### Actions and supported parameters
+
+All actions have the following set of arguments 
+
+* `class-name`: **Required** name for the class to be traced
+
+* `action-name`: **Required** name of method to be traced
+
+* `params`: Optional list of parameters in form of `<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>`<br>
+
+Here is the full list of actions and supported `params` 
+
+| Action               | Supported arguments              |
+| -------------------- | -------------------------------- |
+| elapsed_time_in_nano | isDateLogged, log_threshold_nano |
+| elapsed_time_in_ms   | isDateLogged, log_threshold_ms   |
+| stack_trace          | isDateLogged, log_threshold_ms   |
+| trace_args           | isDateLogged, log_threshold_ms   |
+| trace_retval         | isDateLogged, log_threshold_ms   |
+| counter              | isDateLogged, count_frequency    |
 
 ## Some complex examples how to specify a javaagent
 
@@ -354,4 +384,16 @@ TraceAgent (counter): 16
 TraceAgent (counter): 20
 TraceAgent (counter): 24
 TraceAgent (counter): 28
+```
+
+# Replacing actions directly into the jar
+
+```bash
+# Create or use already created actions.txt file
+echo "elapsed_time_in_ms org.apache.spark.executor.CoarseGrainedExecutorBackend onConnected" > actions.txt
+
+# Replace the actions file in the jar
+jar uf trace-agent-1.0-SNAPSHOT.jar actions.txt
+
+# done
 ```
