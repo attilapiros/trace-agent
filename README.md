@@ -167,7 +167,7 @@ Here is the full list of actions and supported `params`
 
 | Action               | Supported arguments               |
 | -------------------- | --------------------------------- |
-| elapsed_time_in_nano | isDateLogged,  log_threshold_nano |
+| elapsed_time_in_nano | isDateLogged, log_threshold_nano |
 | elapsed_time_in_ms   | isDateLogged, log_threshold_ms    |
 | stack_trace          | isDateLogged, log_threshold_ms    |
 | trace_args           | isDateLogged, log_threshold_ms    |
