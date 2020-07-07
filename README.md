@@ -80,7 +80,6 @@ elapsed_time_in_ms net.test.TestClass2nd anotherMethod
 stack_trace net.test.TestClass2nd anotherMethod
 trace_args net.test.TestClass2nd methodWithArgs
 trace_retval net.test.TestClass2nd methodWithArgs
-counter net.test.TestClass2nd methodWithArgs
 ```
 
 This `actions.txt` is part of the trace agent jar as a resource (no recompile/rebuild is needed just edit the file within the jar).
