@@ -42,9 +42,19 @@ public class TraceRetValueInterceptor {
     Object retVal = callable.call();
     long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+      String retValStr;
+      if (retVal instanceof char[]) {
+        retValStr = new String((char[]) retVal);
+      } else {
+        if (retVal != null) {
+          retValStr = retVal.toString();
+        } else {
+          retValStr = "null";
+        }
+      }
       System.out.println(
           commonActionArgs.addPrefix(
-              "TraceAgent (trace_retval): `" + method + " returns with " + retVal));
+              "TraceAgent (trace_retval): `" + method + " returns with " + retValStr));
     }
     return retVal;
   }
