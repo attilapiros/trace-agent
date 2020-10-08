@@ -46,11 +46,7 @@ public class TraceRetValueInterceptor {
       if (retVal instanceof char[]) {
         retValStr = new String((char[]) retVal);
       } else {
-        if (retVal != null) {
-          retValStr = retVal.toString();
-        } else {
-          retValStr = "null";
-        }
+        retValStr = (retVal == null) ? "null" : retVal.toString();
       }
       System.out.println(
           commonActionArgs.addPrefix(
