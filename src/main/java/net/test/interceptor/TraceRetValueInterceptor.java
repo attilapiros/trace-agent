@@ -40,10 +40,14 @@ public class TraceRetValueInterceptor {
     long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
       String retValStr;
-      if (retVal.getClass().isArray()) {
-        retValStr = ArrayToString.get(retVal);
+      if (retVal != null) {
+        if (retVal.getClass().isArray()) {
+          retValStr = ArrayToString.get(retVal);
+        } else {
+          retValStr = retVal.toString();
+        }
       } else {
-        retValStr = (retVal == null) ? "null" : retVal.toString();
+        retValStr = "null";
       }
       System.out.println(
           commonActionArgs.addPrefix(
