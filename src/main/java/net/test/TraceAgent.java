@@ -74,6 +74,7 @@ public class TraceAgent {
   }
 
   private void installActions(List<TraceAction> actions) {
+    System.out.println("TraceAgent tries to install actions: " + actions);
     for (TraceAction action : actions) {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
@@ -87,6 +88,7 @@ public class TraceAgent {
             .installOn(instrumentation);
       }
     }
+    System.out.println("TraceAgent installed actions successfully");
   }
 
   private void install() {
@@ -110,6 +112,7 @@ public class TraceAgent {
   }
 
   public static void premain(String arguments, Instrumentation instrumentation) {
+    System.out.println("TraceAgent is initializing");
     TraceAgentArgs traceAgentArgs = new TraceAgentArgs(arguments);
     TraceAgent traceAgent = new TraceAgent(traceAgentArgs, instrumentation);
     traceAgent.install();
