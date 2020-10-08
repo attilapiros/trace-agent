@@ -1,9 +1,6 @@
 package net.test.interceptor;
 
-import net.test.ArgUtils;
-import net.test.ArgumentsCollection;
-import net.test.CommonActionArgs;
-import net.test.DefaultArguments;
+import net.test.*;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -43,8 +40,8 @@ public class TraceRetValueInterceptor {
     long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
       String retValStr;
-      if (retVal instanceof char[]) {
-        retValStr = new String((char[]) retVal);
+      if (retVal.getClass().isArray()) {
+        retValStr = ArrayToString.get(retVal);
       } else {
         retValStr = (retVal == null) ? "null" : retVal.toString();
       }
