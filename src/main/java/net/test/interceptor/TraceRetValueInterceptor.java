@@ -1,9 +1,6 @@
 package net.test.interceptor;
 
-import net.test.ArgUtils;
-import net.test.ArgumentsCollection;
-import net.test.CommonActionArgs;
-import net.test.DefaultArguments;
+import net.test.*;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -42,9 +39,19 @@ public class TraceRetValueInterceptor {
     Object retVal = callable.call();
     long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+      String retValStr;
+      if (retVal != null) {
+        if (retVal.getClass().isArray()) {
+          retValStr = ArrayToString.get(retVal);
+        } else {
+          retValStr = retVal.toString();
+        }
+      } else {
+        retValStr = "null";
+      }
       System.out.println(
           commonActionArgs.addPrefix(
-              "TraceAgent (trace_retval): `" + method + " returns with " + retVal));
+              "TraceAgent (trace_retval): `" + method + " returns with " + retValStr));
     }
     return retVal;
   }
