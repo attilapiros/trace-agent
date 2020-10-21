@@ -31,6 +31,16 @@ class TraceAction {
     this(actionId, classMatcherExp, methodMatcherExp, null);
   }
 
+  @Override
+  public String toString() {
+    return "TraceAction{" +
+        "actionId='" + actionId + '\'' +
+        ", classMatcherExp='" + classMatcherExp + '\'' +
+        ", methodMatcherExp='" + methodMatcherExp + '\'' +
+        ", actionArgs='" + actionArgs + '\'' +
+        '}';
+  }
+
   public Object getActionInterceptor(DefaultArguments defaultArguments) {
     final Object interceptor;
     if (actionId.equals("elapsed_time_in_nano")) {
