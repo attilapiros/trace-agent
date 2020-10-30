@@ -271,6 +271,8 @@ Example output:
 TraceAgent (avg_timing): `public void net.test.TestClass2nd.calledSeveralTimes()` window_length: 5 min: 102 avg: 103 max: 105
 ```
 
+**Important: if it is used with REGEXP then it traces at the method where `window_lenth` reached but it contains the elapsed times of all the matching methods!**
+
 ### Summary of Parameters
 
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
