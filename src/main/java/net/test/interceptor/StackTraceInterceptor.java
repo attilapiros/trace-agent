@@ -15,7 +15,6 @@ import java.util.function.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.Callable;
 
 class MyException extends Exception {
@@ -46,14 +45,13 @@ public class StackTraceInterceptor {
 
   private final int limitCount;
 
-  private final AtomicInteger count;
+  private volatile int count = 0;
 
   public StackTraceInterceptor(String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
     this.limitCount = parsed.parseInt(LIMIT_COUNT, -1);
-    this.count = new AtomicInteger(0);
   }
 
   @RuntimeType
@@ -63,13 +61,24 @@ public class StackTraceInterceptor {
       return callable.call();
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
-      if ((this.logThresholdMs == 0 || end - start >= this.logThresholdMs)
-          && (limitCount == -1
-              || count.getAndUpdate(i -> (i < limitCount) ? i + 1 : i) < limitCount)) {
-        Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
-        StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-        e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
-        e.printStackTrace(System.out);
+      if ((this.logThresholdMs == 0 || end - start >= this.logThresholdMs)) {
+
+        final boolean doPrint;
+        if (limitCount == -1) {
+          doPrint = true;
+        } else if (count < limitCount) {
+          doPrint = true;
+          count++;
+        } else {
+          doPrint = false;
+        }
+
+        if (doPrint) {
+          Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
+          StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+          e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
+          e.printStackTrace(System.out);
+        }
       }
     }
   }
