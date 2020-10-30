@@ -32,19 +32,26 @@ class MyException extends Exception {
 
 public class StackTraceInterceptor {
 
+  private static String LIMIT_COUNT = "limit_count";
+
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS, LIMIT_COUNT);
 
   private CommonActionArgs commonActionArgs;
 
   private final long logThresholdMs;
 
+  private final int limitCount;
+
+  private volatile int count = 0;
+
   public StackTraceInterceptor(String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
+    this.limitCount = parsed.parseInt(LIMIT_COUNT, -1);
   }
 
   @RuntimeType
@@ -54,11 +61,24 @@ public class StackTraceInterceptor {
       return callable.call();
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
-      if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
-        Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
-        StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-        e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
-        e.printStackTrace(System.out);
+      if ((this.logThresholdMs == 0 || end - start >= this.logThresholdMs)) {
+
+        final boolean doPrint;
+        if (limitCount == -1) {
+          doPrint = true;
+        } else if (count < limitCount) {
+          doPrint = true;
+          count++;
+        } else {
+          doPrint = false;
+        }
+
+        if (doPrint) {
+          Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
+          StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+          e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
+          e.printStackTrace(System.out);
+        }
       }
     }
   }

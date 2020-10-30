@@ -33,12 +33,16 @@ class TraceAction {
 
   @Override
   public String toString() {
-    return "TraceAction{" +
-        "actionId='" + actionId + '\'' +
-        ", classMatcherExp='" + classMatcherExp + '\'' +
-        ", methodMatcherExp='" + methodMatcherExp + '\'' +
-        ", actionArgs='" + actionArgs + '\'' +
-        '}';
+    return "{"
+        + "actionId='"
+        + actionId
+        + "', classMatcher='"
+        + classMatcherExp
+        + "', methodMatcher='"
+        + methodMatcherExp
+        + "', actionArgs='"
+        + actionArgs
+        + "'}";
   }
 
   public Object getActionInterceptor(DefaultArguments defaultArguments) {
