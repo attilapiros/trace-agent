@@ -230,14 +230,56 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
+# The counter action
+
+This action can be used to count the number of of method calls. It has one parameter `count_frequency` which specifies after how many calls there will be a printout.
+Its output will be printed before the targeted method body is executed.
+
+Example:
+
+```
+  counter net.test.TestClass2nd calledSeveralTimes count_frequency:4
+```
+
+The output is will be like:
+
+```
+TraceAgent (counter): 4
+TraceAgent (counter): 8
+TraceAgent (counter): 12
+TraceAgent (counter): 16
+TraceAgent (counter): 20
+TraceAgent (counter): 24
+TraceAgent (counter): 28
+```
+
+# The avg_timing action
+
+This action creates statistics from the method runtimes based on a specified number of method calls (called `window_length` which is 100 by default).  
+
+It traces out the min, average and max ellapsed times in **milliseconds** when the number of calls are reached the `window_length` then it starts a new window. 
+
+Example:
+
+```
+avg_timing net.test.TestClass2nd calledSeveralTimes window_length:5
+```
+
+Example output:
+
+```
+TraceAgent (avg_timing): `public void net.test.TestClass2nd.calledSeveralTimes()` window_length: 5 min: 102 avg: 103 max: 105
+```
+
 ### Summary of Parameters
 
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
 * `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME). 
   For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
-* `count_frequency` (scope: `action` only) Specifies after how many calls there will be a printout. 
-* `log_threshold_ms` (scope: `action` only) This threshold represents the elapsed number of milliseconds after there will be a printout. The default is `0`, which means it should printout on every call. For example, if we only like to log an action when it takes more than 1 second to complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
-* `log_threshold_nano` (scope: `action` only) Similar to `log_threshold_ms` but in nanoseconds. 
+* `log_threshold_ms` (scope: multiple actions) This threshold represents the elapsed number of milliseconds after there will be a printout. The default is `0`, which means it should printout on every call. For example, if we only like to log an action when it takes more than 1 second to complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
+* `log_threshold_nano` (scope: only for `elapsed_time_in_nano`) Similar to `log_threshold_ms` but in nanoseconds.
+* `limit_count` (scope: only for `stack_trace`) Trace only the first `limit_count` number of calls. This limit is turned off by default by set it to -1.
+* `window_length` scope `avg_timing`
 
 ### Actions and supported parameters
 
@@ -251,14 +293,16 @@ All actions have the following set of arguments
 
 Here is the full list of actions and supported `params` 
 
-| Action               | Supported arguments              |
-| -------------------- | -------------------------------- |
-| elapsed_time_in_nano | isDateLogged, log_threshold_nano |
-| elapsed_time_in_ms   | isDateLogged, log_threshold_ms   |
-| stack_trace          | isDateLogged, log_threshold_ms   |
-| trace_args           | isDateLogged, log_threshold_ms   |
-| trace_retval         | isDateLogged, log_threshold_ms   |
-| counter              | isDateLogged, count_frequency    |
+| Action               | Supported arguments                           |
+| -------------------- | --------------------------------------------- |
+| elapsed_time_in_nano | isDateLogged, log_threshold_nano              |
+| elapsed_time_in_ms   | isDateLogged, log_threshold_ms                |
+| stack_trace          | isDateLogged, log_threshold_ms, limit_count   |
+| trace_args           | isDateLogged, log_threshold_ms                |
+| trace_retval         | isDateLogged, log_threshold_ms                |
+| counter              | isDateLogged, count_frequency                 |
+| avg_timing           | isDateLogged, window_length                   |
+
 
 ## Some complex examples how to specify a javaagent
 
@@ -362,28 +406,6 @@ TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecuto
 TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecutorBackend.onConnected(org.apache.spark.rpc.RpcAddress)` took 0 ms
 ```
 
-# The counter action
-
-This action can be used to count the number of of method calls. It has one parameter `count_frequency` which specifies after how many calls there will be a printout.
-Its output will be printed before the targeted method body is executed.
-
-Example:
-
-```
-  counter net.test.TestClass2nd calledSeveralTimes count_frequency:4
-```
-
-The output is will be like:
-
-```
-TraceAgent (counter): 4
-TraceAgent (counter): 8
-TraceAgent (counter): 12
-TraceAgent (counter): 16
-TraceAgent (counter): 20
-TraceAgent (counter): 24
-TraceAgent (counter): 28
-```
 
 # Replacing actions directly into the jar
 
