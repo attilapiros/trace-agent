@@ -47,17 +47,17 @@ class TraceAction {
 
   public Object getActionInterceptor(DefaultArguments defaultArguments) {
     final Object interceptor;
-    if (actionId.equals("elapsed_time_in_nano")) {
+    if (actionId.equals(TimingInterceptorNano.NAME)) {
       interceptor = new TimingInterceptorNano(actionArgs, defaultArguments);
-    } else if (actionId.equals("elapsed_time_in_ms")) {
+    } else if (actionId.equals(TimingInterceptorMs.NAME)) {
       interceptor = new TimingInterceptorMs(actionArgs, defaultArguments);
-    } else if (actionId.equals("stack_trace")) {
+    } else if (actionId.equals(StackTraceInterceptor.NAME)) {
       interceptor = new StackTraceInterceptor(actionArgs, defaultArguments);
-    } else if (actionId.equals("trace_args")) {
+    } else if (actionId.equals(TraceArgsInterceptor.NAME)) {
       interceptor = new TraceArgsInterceptor(actionArgs, defaultArguments);
-    } else if (actionId.equals("trace_retval")) {
+    } else if (actionId.equals(TraceRetValueInterceptor.NAME)) {
       interceptor = new TraceRetValueInterceptor(actionArgs, defaultArguments);
-    } else if (actionId.equals("counter")) {
+    } else if (actionId.equals(CounterInterceptor.NAME)) {
       interceptor = new CounterInterceptor(actionArgs, defaultArguments);
     } else {
       System.err.println("TraceAgent detected an invalid action: " + actionId);

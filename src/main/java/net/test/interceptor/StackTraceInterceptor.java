@@ -32,6 +32,8 @@ class MyException extends Exception {
 
 public class StackTraceInterceptor {
 
+  public static String NAME = "stack_trace";
+
   private static String LIMIT_COUNT = "limit_count";
 
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";

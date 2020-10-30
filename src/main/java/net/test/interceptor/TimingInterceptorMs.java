@@ -17,6 +17,8 @@ import java.util.concurrent.Callable;
 
 public class TimingInterceptorMs {
 
+  public static String NAME = "elapsed_time_in_ms";
+
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
   private static List<String> KNOWN_ARGS =

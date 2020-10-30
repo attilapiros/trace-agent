@@ -18,6 +18,8 @@ import java.util.concurrent.Callable;
 
 public class TimingInterceptorNano {
 
+  public static String NAME = "elapsed_time_in_nano";
+
   private static String LOG_THRESHOLD_NANO = "log_threshold_nano";
 
   private static List<String> KNOWN_ARGS =

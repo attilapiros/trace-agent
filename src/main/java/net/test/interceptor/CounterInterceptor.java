@@ -19,6 +19,8 @@ import java.util.concurrent.Callable;
 
 public class CounterInterceptor {
 
+  public static String NAME = "counter";
+
   private static String COUNT_FREQUENCY = "count_frequency";
 
   private static List<String> KNOWN_ARGS =

@@ -16,6 +16,8 @@ import java.util.concurrent.Callable;
 
 public class TraceRetValueInterceptor {
 
+  public static String NAME = "trace_retval";
+
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
   private static List<String> KNOWN_ARGS =

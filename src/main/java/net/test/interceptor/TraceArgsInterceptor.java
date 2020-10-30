@@ -19,6 +19,8 @@ import java.util.concurrent.Callable;
 
 public class TraceArgsInterceptor {
 
+  public static String NAME = "trace_args";
+
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
   private static List<String> KNOWN_ARGS =
