@@ -304,6 +304,7 @@ Here is the full list of actions and supported `params`
 | trace_retval         | isDateLogged, log_threshold_ms                |
 | counter              | isDateLogged, count_frequency                 |
 | avg_timing           | isDateLogged, window_length                   |
+| trace_login_config   | isDateLogged, entry_name                      |
 
 
 ## Some complex examples how to specify a javaagent
