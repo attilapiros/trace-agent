@@ -273,6 +273,31 @@ TraceAgent (avg_timing): `public void net.test.TestClass2nd.calledSeveralTimes()
 
 **Important: if it is used with REGEXP then it traces at the method where `window_lenth` reached but it contains the elapsed times of all the matching methods!**
 
+# trace_login_config action
+
+The action traces the JVM `javax.security.auth.login.Configuration` entry which is set as parameter.
+If the entry is not found then the output will be `Not Found`.
+
+Example:
+
+```
+trace_login_config A foo entry_name:KafkaClient
+```
+
+Example output:
+
+```
+TraceAgent (trace_login_config): `public void A.foo() login config for entry "KafkaClient"
+KafkaClient {
+	com.sun.security.auth.module.Krb5LoginModule LoginModuleControlFlag: required
+	principal=user@MY.DOMAIN.COM
+	storeKey=true
+	keyTab=./kafka_client.keytab
+	useKeyTab=true
+	useTicketCache=false
+	serviceName=kafka
+```
+
 ### Summary of Parameters
 
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
@@ -304,6 +329,7 @@ Here is the full list of actions and supported `params`
 | trace_retval         | isDateLogged, log_threshold_ms                |
 | counter              | isDateLogged, count_frequency                 |
 | avg_timing           | isDateLogged, window_length                   |
+| trace_login_config   | isDateLogged, entry_name                      |
 
 
 ## Some complex examples how to specify a javaagent
