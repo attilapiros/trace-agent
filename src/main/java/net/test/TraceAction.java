@@ -61,8 +61,8 @@ class TraceAction {
       interceptor = new AvgTimingInterceptorMs(actionArgs, defaultArguments);
     } else if (actionId.equals(TraceLoginConfigInterceptor.NAME)) {
       interceptor = new TraceLoginConfigInterceptor(actionArgs, defaultArguments);
-    } else if (actionId.equals(TraceParamCallRetValueInterceptor.NAME)) {
-      interceptor = new TraceParamCallRetValueInterceptor(actionArgs, defaultArguments);
+    } else if (actionId.equals(TraceArgsWithMethodCallInterceptor.NAME)) {
+      interceptor = new TraceArgsWithMethodCallInterceptor(actionArgs, defaultArguments);
     } else {
       System.err.println("TraceAgent detected an invalid action: " + actionId);
       interceptor = null;

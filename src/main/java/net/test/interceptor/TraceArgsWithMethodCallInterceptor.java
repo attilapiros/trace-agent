@@ -14,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class TraceParamCallRetValueInterceptor {
+public class TraceArgsWithMethodCallInterceptor {
 
-  public static String NAME = "trace_param_call_retval";
+  public static String NAME = "trace_args_with_method_call";
 
   private static String PARAM_INDEX = "param_index";
 
@@ -29,13 +29,13 @@ public class TraceParamCallRetValueInterceptor {
 
   private final int paramIndex;
 
-  private final String methodToCall;
+  private final String methodToCallName;
 
-  public TraceParamCallRetValueInterceptor(String actionArgs, DefaultArguments defaults) {
+  public TraceArgsWithMethodCallInterceptor(String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.paramIndex = parsed.parseInt(PARAM_INDEX, 0);
-    this.methodToCall = parsed.get(METHOD_TO_CALL);
+    this.methodToCallName = parsed.get(METHOD_TO_CALL);
   }
 
   @RuntimeType
@@ -45,10 +45,10 @@ public class TraceParamCallRetValueInterceptor {
     String retVal = "";
     if (allArguments.length > paramIndex) {
       try {
-        Method getAllTokens = allArguments[paramIndex].getClass().getMethod(methodToCall);
-        retVal = getAllTokens.invoke(allArguments[paramIndex]).toString();
+        Method methodToCall = allArguments[paramIndex].getClass().getMethod(methodToCallName);
+        retVal = methodToCall.invoke(allArguments[paramIndex]).toString();
       } catch (NoSuchMethodException e) {
-        retVal = "No such method found: " + methodToCall;
+        retVal = "No such method found: " + methodToCallName;
       }
     } else {
       retVal =
@@ -59,12 +59,12 @@ public class TraceParamCallRetValueInterceptor {
     }
     System.out.println(
         commonActionArgs.addPrefix(
-            "TraceAgent (trace_param_call_retval): "
+            "TraceAgent (trace_args_with_method_call): "
                 + method
                 + " parameter instance with index "
                 + paramIndex
                 + " method call \""
-                + methodToCall
+                + methodToCallName
                 + "\" returns with \n"
                 + retVal));
     return callable.call();
