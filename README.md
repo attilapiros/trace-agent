@@ -296,6 +296,28 @@ KafkaClient {
 	useKeyTab=true
 	useTicketCache=false
 	serviceName=kafka
+};
+```
+
+# trace_param_call_retval action
+
+The action expects 2 parameters and calls a method on an argument instance:
+* `param_index` This is the index of the argument instance.
+* `method_to_call` This the the method which is called on the argument instance. Please note,
+only public member methods without any parameters can be used. The internal implementation uses
+reflection so it can be used in situations where the number of calls is low.
+
+Example:
+
+```
+trace_param_call_retval org.apache.hadoop.fs.FileSystem addDelegationTokens param_index:1,method_to_call:getAllTokens
+```
+
+Example output:
+
+```
+TraceAgent (trace_param_call_retval): public default org.apache.hadoop.security.token.Token[] org.apache.hadoop.security.token.DelegationTokenIssuer.addDelegationTokens(java.lang.String,org.apache.hadoop.security.Credentials) throws java.io.IOException parameter instance with index 1 method call "getAllTokens" returns with 
+[Kind: testKind, Service: testService, Ident: 74 65 73 74 49 64 65 6e 74 69 66 69 65 72]
 ```
 
 ### Summary of Parameters
@@ -320,16 +342,17 @@ All actions have the following set of arguments
 
 Here is the full list of actions and supported `params` 
 
-| Action               | Supported arguments                           |
-| -------------------- | --------------------------------------------- |
-| elapsed_time_in_nano | isDateLogged, log_threshold_nano              |
-| elapsed_time_in_ms   | isDateLogged, log_threshold_ms                |
-| stack_trace          | isDateLogged, log_threshold_ms, limit_count   |
-| trace_args           | isDateLogged, log_threshold_ms                |
-| trace_retval         | isDateLogged, log_threshold_ms                |
-| counter              | isDateLogged, count_frequency                 |
-| avg_timing           | isDateLogged, window_length                   |
-| trace_login_config   | isDateLogged, entry_name                      |
+| Action                  | Supported arguments                           |
+| ----------------------- | --------------------------------------------- |
+| elapsed_time_in_nano    | isDateLogged, log_threshold_nano              |
+| elapsed_time_in_ms      | isDateLogged, log_threshold_ms                |
+| stack_trace             | isDateLogged, log_threshold_ms, limit_count   |
+| trace_args              | isDateLogged, log_threshold_ms                |
+| trace_retval            | isDateLogged, log_threshold_ms                |
+| trace_param_call_retval | isDateLogged, param_index, method_to_call     |
+| counter                 | isDateLogged, count_frequency                 |
+| avg_timing              | isDateLogged, window_length                   |
+| trace_login_config      | isDateLogged, entry_name                      |
 
 
 ## Some complex examples how to specify a javaagent

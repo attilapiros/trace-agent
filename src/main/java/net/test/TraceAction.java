@@ -7,8 +7,6 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
-import java.util.Map;
-
 class TraceAction {
 
   private final String actionId;
@@ -63,6 +61,8 @@ class TraceAction {
       interceptor = new AvgTimingInterceptorMs(actionArgs, defaultArguments);
     } else if (actionId.equals(TraceLoginConfigInterceptor.NAME)) {
       interceptor = new TraceLoginConfigInterceptor(actionArgs, defaultArguments);
+    } else if (actionId.equals(TraceParamCallRetValueInterceptor.NAME)) {
+      interceptor = new TraceParamCallRetValueInterceptor(actionArgs, defaultArguments);
     } else {
       System.err.println("TraceAgent detected an invalid action: " + actionId);
       interceptor = null;
