@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 class MyException extends Exception {
 
@@ -39,7 +40,11 @@ public class StackTraceInterceptor {
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS, LIMIT_COUNT);
+      Arrays.asList(
+          CommonActionArgs.IS_DATE_LOGGED,
+          CommonActionArgs.USE_LOG4J,
+          LOG_THRESHOLD_MILLISECONDS,
+          LIMIT_COUNT);
 
   private CommonActionArgs commonActionArgs;
 
@@ -76,10 +81,14 @@ public class StackTraceInterceptor {
         }
 
         if (doPrint) {
-          Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
-          StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-          e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
-          e.printStackTrace(System.out);
+          List<StackTraceElement> stElements =
+              Arrays.asList(Thread.currentThread().getStackTrace());
+          String st =
+              stElements.stream()
+                  .filter(elt -> elt != null)
+                  .map(elt -> elt.toString())
+                  .collect(Collectors.joining("\n\t"));
+          commonActionArgs.printMsg("TraceAgent (stack trace)" + st);
         }
       }
     }

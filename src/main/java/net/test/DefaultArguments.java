@@ -11,4 +11,6 @@ public interface DefaultArguments {
   DateTimeFormatter getDateTimeFormatter();
 
   boolean isDateLogged();
+
+  boolean useLog4j();
 }

@@ -24,7 +24,7 @@ public class CounterInterceptor {
   private static String COUNT_FREQUENCY = "count_frequency";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COUNT_FREQUENCY);
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.USE_LOG4J, COUNT_FREQUENCY);
 
   private CommonActionArgs commonActionArgs;
 
@@ -44,7 +44,7 @@ public class CounterInterceptor {
       throws Exception {
     counter++;
     if (counter % countFrequency == 0) {
-      System.out.println(commonActionArgs.addPrefix("TraceAgent (counter): " + counter));
+      commonActionArgs.printMsg("TraceAgent (counter): " + counter);
     }
     return callable.call();
   }

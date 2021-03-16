@@ -15,12 +15,16 @@ public class TraceAgentArgs implements DefaultArguments {
   private final DateTimeFormatter dateTimeFormatter;
 
   private final Boolean isDateLoggedFlag;
+  private final Boolean useLog4jFlag;
 
   public TraceAgentArgs(String arguments) {
     Map<String, String> parsedArgs =
         ArgUtils.parseOptionalArgs(
             Arrays.asList(
-                EXTERNAL_ACTION_FILE_PATH, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED),
+                EXTERNAL_ACTION_FILE_PATH,
+                DATE_TIME_FORMAT,
+                CommonActionArgs.IS_DATE_LOGGED,
+                CommonActionArgs.USE_LOG4J),
             arguments);
     this.externalActionFilePath = parsedArgs.get(EXTERNAL_ACTION_FILE_PATH);
     final String dateTimeFormatStr = parsedArgs.get(DATE_TIME_FORMAT);
@@ -31,6 +35,7 @@ public class TraceAgentArgs implements DefaultArguments {
     }
     // parse the common arguments
     this.isDateLoggedFlag = Boolean.valueOf(parsedArgs.get(CommonActionArgs.IS_DATE_LOGGED));
+    this.useLog4jFlag = Boolean.valueOf(parsedArgs.get(CommonActionArgs.USE_LOG4J));
   }
 
   public String getExternalActionFilePath() {
@@ -43,5 +48,9 @@ public class TraceAgentArgs implements DefaultArguments {
 
   public boolean isDateLogged() {
     return this.isDateLoggedFlag;
+  }
+
+  public boolean useLog4j() {
+    return this.useLog4jFlag;
   }
 }

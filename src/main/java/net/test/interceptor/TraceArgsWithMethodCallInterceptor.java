@@ -23,7 +23,8 @@ public class TraceArgsWithMethodCallInterceptor {
   private static String METHOD_TO_CALL = "method_to_call";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, PARAM_INDEX, METHOD_TO_CALL);
+      Arrays.asList(
+          CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.USE_LOG4J, PARAM_INDEX, METHOD_TO_CALL);
 
   private CommonActionArgs commonActionArgs;
 
@@ -57,16 +58,17 @@ public class TraceArgsWithMethodCallInterceptor {
               + " but max index is "
               + (allArguments.length - 1);
     }
-    System.out.println(
-        commonActionArgs.addPrefix(
-            "TraceAgent (trace_args_with_method_call): "
-                + method
-                + " parameter instance with index "
-                + paramIndex
-                + " method call \""
-                + methodToCallName
-                + "\" returns with \n"
-                + retVal));
+
+    commonActionArgs.printMsg(
+        "TraceAgent (trace_args_with_method_call): "
+            + method
+            + " parameter instance with index "
+            + paramIndex
+            + " method call \""
+            + methodToCallName
+            + "\" returns with \n"
+            + retVal);
+
     return callable.call();
   }
 }

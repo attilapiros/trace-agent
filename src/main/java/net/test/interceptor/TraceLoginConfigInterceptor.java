@@ -24,7 +24,7 @@ public class TraceLoginConfigInterceptor {
   private static String ENTRY_NAME = "entry_name";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, ENTRY_NAME);
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.USE_LOG4J, ENTRY_NAME);
 
   private CommonActionArgs commonActionArgs;
 
@@ -55,14 +55,15 @@ public class TraceLoginConfigInterceptor {
     if (entries.isEmpty()) {
       entries = "Not Found";
     }
-    System.out.println(
-        commonActionArgs.addPrefix(
-            "TraceAgent (trace_login_config): `"
-                + method
-                + " login config for entry \""
-                + entryName
-                + "\"\n"
-                + entries));
+
+    commonActionArgs.printMsg(
+        "TraceAgent (trace_login_config): `"
+            + method
+            + " login config for entry \""
+            + entryName
+            + "\"\n"
+            + entries);
+
     return callable.call();
   }
 }
