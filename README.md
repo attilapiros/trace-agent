@@ -230,7 +230,7 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
-#### Use log4j logger to add the output to log file instead of stdout.
+#### Redirect output to  log4j logger.
 
 By adding this argument we can instruct the agent to add the file to log4j logger instead of stdout.
 
