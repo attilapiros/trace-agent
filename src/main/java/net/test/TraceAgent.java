@@ -79,6 +79,9 @@ public class TraceAgent {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
         new AgentBuilder.Default()
+            .disableClassFormatChanges()
+            .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
+            .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
             .type(action.getClassMatcher())
             .transform(
                 (builder, type, classLoader, module) ->
