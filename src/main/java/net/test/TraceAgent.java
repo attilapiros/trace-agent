@@ -79,6 +79,7 @@ public class TraceAgent {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
         new AgentBuilder.Default()
+            .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
             .type(action.getClassMatcher())
             .transform(
                 (builder, type, classLoader, module) ->
@@ -116,5 +117,9 @@ public class TraceAgent {
     TraceAgentArgs traceAgentArgs = new TraceAgentArgs(arguments);
     TraceAgent traceAgent = new TraceAgent(traceAgentArgs, instrumentation);
     traceAgent.install();
+  }
+
+  public static void agentmain(String arguments, Instrumentation instrumentation) {
+    premain(arguments, instrumentation);
   }
 }
