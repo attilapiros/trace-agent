@@ -255,19 +255,6 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
-#### Redirect output to  log4j logger.
-
-By adding this argument we can instruct the agent to add the file to log4j logger instead of stdout.
-
-```
-java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="use_log4j:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
-
-21/03/15 16:57:47 INFO TraceAgent: TraceAgent (trace_args_with_method_call): public java.lang.Object org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(org.apache.spark.sql.SparkSession,org.apache.spark.sql.execution.QueryExecution,scala.Function0) parameter instance with index 1 method call "getAllTokens" returns with
-21/03/15 16:57:47 INFO TraceAgent: TraceAgent (trace_args): `public java.lang.String org.apache.spark.sql.execution.SQLExecution$.EXECUTION_ID_KEY() called with []
-```
-
-The default is to write to the stdout.
-
 
 # The counter action
 
