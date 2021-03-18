@@ -100,6 +100,31 @@ methodWithArgs
 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
+## Attaching Agent to running java process (hotswap)
+
+The agent can be attached to already running java process. 
+
+To start trace on a running process one can use:
+
+```
+$ java -cp <JAVA HOME>/lib/tools.jar:target/trace-agent-1.0-SNAPSHOT.jar net.test.AgentLoader  target/trace-agent-1.0-SNAPSHOT.jar <PID of process>
+
+The above command attaches to the running java process and installs the actions. The instrumentaion messages will start showing in the processes logs/stdout as per the configuration.
+
+For example when attaching to a Spark executor using its pid:
+...
+21/03/17 13:30:52 INFO yarn.Client: Application report for application_1614936955492_0466 (state: ACCEPTED)
+TraceAgent is initializing
+TraceAgent tries to install actions: [{actionId='trace_args', classMatcher='REGEXP(org\.apache\.spark\.sql\.execution\.SparkStratgies.*)'}, ...]
+TraceAgent installed actions successfully
+...
+21/03/17 14:18:33 INFO yarn.Client: Application report for application_1614936955492_0470 (state: RUNNING)
+21/03/17 14:18:34 INFO util.Utils: Using initial executors = 0, max of spark.dynamicAllocation.initialExecutors, spark.dynamicAllocation.minExecutors and spark.executor.instances
+TraceAgent (timing): `public final void org.apache.spark.SparkContext$$anonfun$23.apply(org.apache.spark.ExecutorAllocationManager)` took 22 ms
+TraceAgent (timing): `public final void org.apache.spark.SparkContext$$anonfun$24.apply(org.apache.spark.ContextCleaner)` took 2 ms
+....
+
+```
 
 ## The config format
 
@@ -229,6 +254,7 @@ In this case all the rules are used from both the internal and external action f
 
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
+
 
 # The counter action
 

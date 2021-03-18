@@ -15,6 +15,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <premain>net.test.TraceAgent</premain>
+    <java.version>1.8</java.version>
+    <sun.tools.version>1.8.0</sun.tools.version>
   </properties>
 
   <dependencies>
@@ -28,6 +30,13 @@
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
       <version>1.10.10</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun</groupId>
+      <artifactId>tools</artifactId>
+      <version>${sun.tools.version}</version>
+      <scope>system</scope>
+      <systemPath>${java.home}/../lib/tools.jar</systemPath>
     </dependency>
   </dependencies>
 
