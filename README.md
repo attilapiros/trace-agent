@@ -1,16 +1,17 @@
 # Trace Agent
 
-A java agent for tracing which configurable by an embedded simple text file.
-As the config file is resource within the agent jar no rebuild is needed for tracing methods.
+Trace Agent is a Java agent configurable by a simple text file to trace Java methods without any rebuild.
+Its config file called `actions.txt` can be provided as an external resource or can be embedded within the agent jar
+this way in a distributed environment just the agent jar should be added to the classpath of the different components.
 
 
 # The example
 
-It is much easier to understand how this can be used if I show you it through an example.
+It is much easier to understand how this tool can be used if I show you it through an example.
 
 ## The project we would like to trace
 
-Let's say we have a project what we would like analyze. In this example its code very simple:
+Let's say we have a project what we would like analyze. Let's take a very simple Java application as an example:
 
 ```java
 
@@ -100,6 +101,7 @@ methodWithArgs
 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
+That's it! This was the basic idea why I started this project.
 
 ## The config format
 
@@ -109,7 +111,7 @@ The config format is simple lines with the following structure:
 <action-name> <class-name> <method-name> <optionalParameters>
 ```
 
-Empty lines and lines starting with `#` (comments) are skipped. 
+Empty lines and lines starting with `#` (comments) are skipped.
 
 ## Using regular expressions for matching to class and method names
 
@@ -214,7 +216,7 @@ Tue Jun 23 12:50:33 CEST 2020
 2020-06-23T12:50 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
-The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME). 
+The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME).
 For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
 
 #### The external actions file
@@ -255,9 +257,9 @@ TraceAgent (counter): 28
 
 # The avg_timing action
 
-This action creates statistics from the method runtimes based on a specified number of method calls (called `window_length` which is 100 by default).  
+This action creates statistics from the method runtimes based on a specified number of method calls (called `window_length` which is 100 by default).
 
-It traces out the min, average and max ellapsed times in **milliseconds** when the number of calls are reached the `window_length` then it starts a new window. 
+It traces out the min, average and max ellapsed times in **milliseconds** when the number of calls are reached the `window_length` then it starts a new window.
 
 Example:
 
@@ -316,14 +318,14 @@ trace_args_with_method_call org.apache.hadoop.fs.FileSystem addDelegationTokens 
 Example output:
 
 ```
-TraceAgent (trace_args_with_method_call): public default org.apache.hadoop.security.token.Token[] org.apache.hadoop.security.token.DelegationTokenIssuer.addDelegationTokens(java.lang.String,org.apache.hadoop.security.Credentials) throws java.io.IOException parameter instance with index 1 method call "getAllTokens" returns with 
+TraceAgent (trace_args_with_method_call): public default org.apache.hadoop.security.token.Token[] org.apache.hadoop.security.token.DelegationTokenIssuer.addDelegationTokens(java.lang.String,org.apache.hadoop.security.Credentials) throws java.io.IOException parameter instance with index 1 method call "getAllTokens" returns with
 [Kind: testKind, Service: testService, Ident: 74 65 73 74 49 64 65 6e 74 69 66 69 65 72]
 ```
 
 ### Summary of Parameters
 
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
-* `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME). 
+* `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME).
   For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
 * `log_threshold_ms` (scope: multiple actions) This threshold represents the elapsed number of milliseconds after there will be a printout. The default is `0`, which means it should printout on every call. For example, if we only like to log an action when it takes more than 1 second to complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
 * `log_threshold_nano` (scope: only for `elapsed_time_in_nano`) Similar to `log_threshold_ms` but in nanoseconds.
@@ -332,7 +334,7 @@ TraceAgent (trace_args_with_method_call): public default org.apache.hadoop.secur
 
 ### Actions and supported parameters
 
-All actions have the following set of arguments 
+All actions have the following set of arguments
 
 * `class-name`: **Required** name for the class to be traced
 
@@ -340,7 +342,7 @@ All actions have the following set of arguments
 
 * `params`: Optional list of parameters in form of `<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>`<br>
 
-Here is the full list of actions and supported `params` 
+Here is the full list of actions and supported `params`
 
 | Action                      | Supported arguments                           |
 | --------------------------- | --------------------------------------------- |
