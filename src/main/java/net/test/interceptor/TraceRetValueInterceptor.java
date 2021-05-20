@@ -21,7 +21,8 @@ public class TraceRetValueInterceptor {
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
+      Arrays.asList(
+          CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.USE_LOG4J, LOG_THRESHOLD_MILLISECONDS);
 
   private CommonActionArgs commonActionArgs;
 
@@ -51,9 +52,8 @@ public class TraceRetValueInterceptor {
       } else {
         retValStr = "null";
       }
-      System.out.println(
-          commonActionArgs.addPrefix(
-              "TraceAgent (trace_retval): `" + method + " returns with " + retValStr));
+      commonActionArgs.printMsg(
+          "TraceAgent (trace_retval): `" + method + " returns with " + retValStr);
     }
     return retVal;
   }

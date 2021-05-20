@@ -41,4 +41,13 @@ public class ArgumentsCollection extends HashMap<String, String> {
     }
     return valueLong;
   }
+
+  public boolean parseBoolean(String key, boolean defaultValue) {
+    String valueStr = this.get(key);
+    boolean valueBool = defaultValue;
+    if (valueStr != null) {
+      valueBool = Boolean.valueOf(valueStr);
+    }
+    return valueBool;
+  }
 }

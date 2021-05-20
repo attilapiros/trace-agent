@@ -22,7 +22,7 @@ public class AvgTimingInterceptorMs {
   private static String WINDOW_LENGTH = "window_length";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, WINDOW_LENGTH);
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, WINDOW_LENGTH, CommonActionArgs.USE_LOG4J);
 
   private CommonActionArgs commonActionArgs;
 
@@ -57,21 +57,22 @@ public class AvgTimingInterceptorMs {
       } else if (elapsedTime > this.window_max) {
         window_max = elapsedTime;
       }
+
       if (window_index == window_length) {
-        System.out.println(
-            commonActionArgs.addPrefix(
-                "TraceAgent ("
-                    + NAME
-                    + "): `"
-                    + method
-                    + "` window_length: "
-                    + window_length
-                    + " min: "
-                    + window_min
-                    + " avg: "
-                    + window_sum / window_length
-                    + " max: "
-                    + window_max));
+        commonActionArgs.printMsg(
+            "TraceAgent ("
+                + NAME
+                + "): `"
+                + method
+                + "` window_length: "
+                + window_length
+                + " min: "
+                + window_min
+                + " avg: "
+                + window_sum / window_length
+                + " max: "
+                + window_max);
+
         window_index = 0;
         window_sum = 0;
       }
