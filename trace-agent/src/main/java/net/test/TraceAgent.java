@@ -74,7 +74,27 @@ public class TraceAgent {
     for (TraceAction action : actions) {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
-        new AgentBuilder.Default()
+        AgentBuilder agentBuilder = new AgentBuilder.Default();
+        AgentBuilder.RedefinitionStrategy redefinitionStrategy =
+            AgentBuilder.RedefinitionStrategy.DISABLED;
+
+        if (traceAgentArgs.isAgentLogEnabled()) {
+          if (redefinitionStrategy == AgentBuilder.RedefinitionStrategy.DISABLED) {
+            agentBuilder =
+                agentBuilder
+                    .with(AgentBuilder.Listener.StreamWriting.toSystemError())
+                    .with(AgentBuilder.InstallationListener.StreamWriting.toSystemError());
+          } else {
+            agentBuilder =
+                agentBuilder
+                    .with(AgentBuilder.Listener.StreamWriting.toSystemError())
+                    .with(AgentBuilder.InstallationListener.StreamWriting.toSystemError())
+                    .with(redefinitionStrategy)
+                    .with(AgentBuilder.RedefinitionStrategy.Listener.StreamWriting.toSystemError());
+          }
+        }
+
+        agentBuilder
             .type(action.getClassMatcher())
             .transform((builder, type, classLoader, module) -> builder.method(action.getMethodMatcher()).intercept(MethodDelegation.to(interceptor)))
             .installOn(instrumentation);
