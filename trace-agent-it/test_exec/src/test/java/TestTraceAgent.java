@@ -209,4 +209,20 @@ public class TestTraceAgent {
             .filter(s -> s.equals(" num     #instances         #bytes  class name"))
             .count());
   }
+
+  @Test
+  public void testDiagnosticCommandThreadPrint() throws IOException {
+    String output =
+        runTraceAgent(
+            "diagnostic_command net.test.TestClass2nd anotherMethod cmd:threadPrint,limit_output_lines:15");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.equals(
+                        "TraceAgent (diagnostic_command / threadPrint): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
+    assertTrue(streamSupplier.get().anyMatch(s -> s.contains("Full thread dump")));
+  }
 }

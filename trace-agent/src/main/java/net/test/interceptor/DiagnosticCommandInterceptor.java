@@ -131,7 +131,7 @@ public class DiagnosticCommandInterceptor {
                     + command
                     + "): at the beginning of `"
                     + method
-                    + "`:"
+                    + "`:\n"
                     + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
       }
       try {
@@ -144,7 +144,7 @@ public class DiagnosticCommandInterceptor {
                       + command
                       + "): at the end of `"
                       + method
-                      + "`:"
+                      + "`:\n"
                       + getFirstLines(
                           invokeNoStringArgumentsCommand(command), limitForOutputLines)));
         }
