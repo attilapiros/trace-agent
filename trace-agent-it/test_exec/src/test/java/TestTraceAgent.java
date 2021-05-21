@@ -3,93 +3,210 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.rules.TestWatchman;
+import org.junit.rules.MethodRule;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.stream.*;
+import java.util.function.Supplier;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TestTraceAgent {
-  CommandLine cmd =
+
+  private static final String ACTION_FILE_NAME = "actions.txt";
+
+  private static CommandLine cmd =
       CommandLine.parse(
-          "java -javaagent:../../trace-agent/target/trace-agent-1.0-SNAPSHOT.jar=\"actionsFile:./actions.txt\" "
+          "java -javaagent:../../trace-agent/target/trace-agent-1.0-SNAPSHOT.jar=\"actionsFile:./"
+              + ACTION_FILE_NAME
+              + "\" "
               + "-jar ../sampleApp/target/sampleApp-1.0-SNAPSHOT.jar");
 
-  DefaultExecutor executor = new DefaultExecutor();
-  ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-  File actionFile = new File("actions.txt");
-
-  @Before
-  public void setUp() throws IOException {
-    executor.setStreamHandler(new PumpStreamHandler(outputStream));
-    actionFile.createNewFile();
+  private String runTraceAgent(String... actions) throws IOException {
+    String res = "";
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      DefaultExecutor executor = new DefaultExecutor();
+      executor.setStreamHandler(new PumpStreamHandler(outputStream));
+      File actionFile = new File(ACTION_FILE_NAME);
+      try (FileWriter actionWriter = new FileWriter(actionFile)) {
+        for (String a : actions) {
+          actionWriter.append(a + "\n");
+        }
+        actionWriter.close();
+        executor.execute(cmd);
+      } finally {
+        actionFile.delete();
+      }
+      res = outputStream.toString();
+    }
+    return res;
   }
 
-  @After
-  public void tearDown() {
-    actionFile.delete();
+  @Rule
+  public MethodRule watchman =
+      new TestWatchman() {
+        public void starting(FrameworkMethod method) {
+          System.out.println("=== BEGIN " + method.getName());
+        }
+
+        public void finished(FrameworkMethod method) {
+          System.out.println("==== END " + method.getName());
+        }
+      };
+
+  private Supplier<Stream<String>> toStremSupplier(String output) {
+    System.out.println(output);
+    String lines[] = output.split("\n");
+    return () -> Arrays.stream(lines);
   }
 
   @Test
   public void testStackTrace() throws IOException {
-    createActions("stack_trace net.test.TestClass2nd anotherMethod");
-    executor.execute(cmd);
-    assertTrue(outputStream.toString().contains("TraceAgent (stack trace)"));
+    String output = runTraceAgent("stack_trace net.test.TestClass2nd anotherMethod");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(streamSupplier.get().anyMatch(s -> s.contains("TraceAgent (stack trace)")));
     assertTrue(
-        outputStream.toString().contains("at net.test.TestClass2nd.anotherMethod(SampleApp.java)"));
-    assertTrue(outputStream.toString().contains("at net.test.SampleApp.main"));
+        streamSupplier
+            .get()
+            .anyMatch(s -> s.contains("at net.test.TestClass2nd.anotherMethod(SampleApp.java)")));
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(s -> s.contains("at net.test.SampleApp.main(SampleApp.java")));
   }
 
   @Test
   public void testTraceArgs() throws IOException {
-    createActions("trace_args net.test.TestClass2nd methodWithArgs");
-    executor.execute(cmd);
-    assertTrue(outputStream.toString().contains("TraceAgent (trace_args)"));
-    assertTrue(outputStream.toString().contains("net.test.TestClass2nd.methodWithArgs"));
-    assertTrue(outputStream.toString().contains("[secret, 42]"));
+    String output = runTraceAgent("trace_args net.test.TestClass2nd methodWithArgs");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.contains(
+                        "TraceAgent (trace_args): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]")));
   }
 
   @Test
   public void testTraceRetVal() throws IOException {
-    createActions("trace_retval net.test.TestClass2nd methodWithArgs");
-    executor.execute(cmd);
-    assertTrue(outputStream.toString().contains("TraceAgent (trace_retval)"));
-    assertTrue(outputStream.toString().contains("net.test.TestClass2nd.methodWithArgs"));
-    assertTrue(outputStream.toString().contains("returns with 12"));
+    String output = runTraceAgent("trace_retval net.test.TestClass2nd methodWithArgs");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.contains(
+                        "TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12")));
   }
 
   @Test
   public void testElapsedTime() throws IOException {
-    createActions(
-        "elapsed_time_in_nano net.test.TestClass test",
-        "elapsed_time_in_ms net.test.TestClass2nd anotherMethod");
-    executor.execute(cmd);
-    assertTrue(outputStream.toString().contains("TraceAgent (timing)"));
+    String output =
+        runTraceAgent(
+            "elapsed_time_in_nano net.test.TestClass test",
+            "elapsed_time_in_ms net.test.TestClass2nd anotherMethod");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
     assertTrue(
-        outputStream
-            .toString()
-            .matches("(.|\\s)*net.test.TestClass.test(.)*took [0-9]+ nano(.|\\s)*"));
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.matches(
+                        "TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ nano")));
     assertTrue(
-        outputStream
-            .toString()
-            .matches("(.|\\s)*net.test.TestClass2nd.anotherMethod(.)*took [0-9]+ ms(.|\\s)*"));
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.matches(
+                        "TraceAgent \\(timing\\): `public void net.test.TestClass2nd.anotherMethod\\(\\)` took [0-9]+ ms")));
   }
 
   @Test
   public void testCounter() throws IOException {
-    createActions("counter net.test.TestClass2nd anotherMethod count_frequency:1");
-    executor.execute(cmd);
+    String output = runTraceAgent("counter net.test.TestClass2nd anotherMethod count_frequency:1");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
     assertTrue(
-        outputStream
-            .toString()
-            .matches("(.|\\s)*TraceAgent \\(counter\\):(.)*anotherMethod(.)*called 1(.|\\s)*"));
+        streamSupplier
+            .get()
+            .anyMatch(
+                s -> s.matches("TraceAgent \\(counter\\):(.)*anotherMethod(.)*called 1(.|\\s)*")));
   }
 
-  private void createActions(String... actions) throws IOException {
-    FileWriter actionWriter = new FileWriter(actionFile);
-    for (String a : actions) {
-      actionWriter.append(a + "\n");
-    }
-    actionWriter.close();
+  @Test
+  public void testDiagnosticCommandBeforeAndAfter() throws IOException {
+    String output =
+        runTraceAgent(
+            "diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:beforeAndAfter");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.contains(
+                        "TraceAgent (diagnostic_command / gcClassHistogram): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.contains(
+                        "TraceAgent (diagnostic_command / gcClassHistogram): at the end of `public void net.test.TestClass2nd.anotherMethod()`:")));
+    assertEquals(
+        2,
+        streamSupplier
+            .get()
+            .filter(s -> s.equals(" num     #instances         #bytes  class name"))
+            .count());
+  }
+
+  @Test
+  public void testDiagnosticCommandBefore() throws IOException {
+    String output =
+        runTraceAgent(
+            "diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:before");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.contains(
+                        "TraceAgent (diagnostic_command / gcClassHistogram): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
+    assertEquals(
+        1,
+        streamSupplier
+            .get()
+            .filter(s -> s.equals(" num     #instances         #bytes  class name"))
+            .count());
+  }
+
+  @Test
+  public void testDiagnosticCommandAfter() throws IOException {
+    String output =
+        runTraceAgent(
+            "diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:after");
+    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.contains(
+                        "TraceAgent (diagnostic_command / gcClassHistogram): at the end of `public void net.test.TestClass2nd.anotherMethod()`:")));
+    assertEquals(
+        1,
+        streamSupplier
+            .get()
+            .filter(s -> s.equals(" num     #instances         #bytes  class name"))
+            .count());
   }
 }

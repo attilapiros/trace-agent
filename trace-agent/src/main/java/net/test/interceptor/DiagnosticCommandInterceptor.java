@@ -35,29 +35,54 @@ public class DiagnosticCommandInterceptor {
     return null;
   }
 
-  private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
-
   private static String COMMAND = "cmd";
+
+  private static String WHERE = "where";
+
   private static String LIMIT_OUTPUT_LINES = "limit_output_lines";
 
   private static List<String> KNOWN_ARGS =
-      Arrays.asList(
-          CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS, COMMAND, LIMIT_OUTPUT_LINES);
+      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE);
 
   private CommonActionArgs commonActionArgs;
 
   private String command;
 
-  private final long logThresholdMs;
-
   private final int limitForOutputLines;
+
+  private final boolean isBefore;
+
+  private final boolean isAfter;
 
   public DiagnosticCommandInterceptor(String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
-    this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
     this.command = parsed.get(COMMAND);
     this.limitForOutputLines = parsed.parseInt(LIMIT_OUTPUT_LINES, -1);
+    final String where = parsed.getOrDefault(WHERE, "before");
+    switch (where) {
+      case "before":
+        isBefore = true;
+        isAfter = false;
+        break;
+      case "after":
+        isBefore = false;
+        isAfter = true;
+        break;
+      case "beforeAndAfter":
+        isBefore = true;
+        isAfter = true;
+        break;
+      default:
+        System.out.println(
+            "TraceAgent: (diagnostic_command / "
+                + command
+                + ") invalid value for `where`: "
+                + where
+                + ". Action is switched off!");
+        isBefore = false;
+        isAfter = false;
+    }
   }
 
   private String invokeNoStringArgumentsCommand(final String operationName) {
@@ -99,12 +124,20 @@ public class DiagnosticCommandInterceptor {
     if (diagObj == null) {
       return callable.call();
     } else {
-      long start = System.currentTimeMillis();
+      if (isBefore) {
+        System.out.println(
+            commonActionArgs.addPrefix(
+                "TraceAgent (diagnostic_command / "
+                    + command
+                    + "): at the beginning of `"
+                    + method
+                    + "`:"
+                    + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
+      }
       try {
         return callable.call();
       } finally {
-        long end = System.currentTimeMillis();
-        if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
+        if (isAfter) {
           System.out.println(
               commonActionArgs.addPrefix(
                   "TraceAgent (diagnostic_command / "
