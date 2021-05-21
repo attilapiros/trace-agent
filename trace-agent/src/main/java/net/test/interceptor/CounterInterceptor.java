@@ -44,7 +44,8 @@ public class CounterInterceptor {
       throws Exception {
     counter++;
     if (counter % countFrequency == 0) {
-      System.out.println(commonActionArgs.addPrefix("TraceAgent (counter): " + counter));
+      System.out.println(
+          commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + counter));
     }
     return callable.call();
   }

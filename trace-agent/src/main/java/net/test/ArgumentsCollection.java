@@ -12,7 +12,7 @@ public class ArgumentsCollection extends HashMap<String, String> {
         valueInt = Integer.valueOf(valueStr);
       } catch (NumberFormatException nfe) {
         System.err.println(
-            "TraceAgent (counter) invalid `"
+            "TraceAgent: number format exception at parseInt() for `"
                 + key
                 + "` param value: `"
                 + valueStr
@@ -31,7 +31,7 @@ public class ArgumentsCollection extends HashMap<String, String> {
         valueLong = Long.valueOf(valueStr);
       } catch (NumberFormatException nfe) {
         System.err.println(
-            "TraceAgent (counter) invalid `"
+            "TraceAgent: number format exception at parseLong() for `"
                 + key
                 + "` param value: `"
                 + valueStr
