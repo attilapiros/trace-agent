@@ -5,7 +5,7 @@ Its config file called `actions.txt` can be provided as an external resource or 
 this way in a distributed environment just the agent jar should be added to the classpath of the different components.
 
 
-# The example
+# An example
 
 It is much easier to understand how this tool can be used if I show you it through an example.
 
@@ -232,7 +232,9 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
-# The counter action
+# Actions
+
+## The counter action
 
 This action can be used to count the number of of method calls. It has one parameter `count_frequency` which specifies after how many calls there will be a printout.
 Its output will be printed before the targeted method body is executed.
@@ -255,7 +257,7 @@ TraceAgent (counter): 24
 TraceAgent (counter): 28
 ```
 
-# The avg_timing action
+## The avg_timing action
 
 This action creates statistics from the method runtimes based on a specified number of method calls (called `window_length` which is 100 by default).
 
@@ -275,7 +277,7 @@ TraceAgent (avg_timing): `public void net.test.TestClass2nd.calledSeveralTimes()
 
 **Important: if it is used with REGEXP then it traces at the method where `window_lenth` reached but it contains the elapsed times of all the matching methods!**
 
-# trace_login_config action
+## The trace_login_config action
 
 The action traces the JVM `javax.security.auth.login.Configuration` entry which is set as parameter.
 If the entry is not found then the output will be `Not Found`.
@@ -301,7 +303,7 @@ KafkaClient {
 };
 ```
 
-# trace_args_with_method_call action
+## The trace_args_with_method_call action
 
 The action expects 2 parameters and calls a method on an argument instance:
 * `param_index` This is the index of the argument instance.
@@ -322,7 +324,7 @@ TraceAgent (trace_args_with_method_call): public default org.apache.hadoop.secur
 [Kind: testKind, Service: testService, Ident: 74 65 73 74 49 64 65 6e 74 69 66 69 65 72]
 ```
 
-### Summary of Parameters
+# Summary of Parameters
 
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
 * `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME).
@@ -332,7 +334,7 @@ TraceAgent (trace_args_with_method_call): public default org.apache.hadoop.secur
 * `limit_count` (scope: only for `stack_trace`) Trace only the first `limit_count` number of calls. This limit is turned off by default by set it to -1.
 * `window_length` scope `avg_timing`
 
-### Actions and supported parameters
+## Actions and supported parameters
 
 All actions have the following set of arguments
 
@@ -357,17 +359,17 @@ Here is the full list of actions and supported `params`
 | trace_login_config          | isDateLogged, entry_name                      |
 
 
-## Some complex examples how to specify a javaagent
+# Some complex examples how to specify a javaagent
 
 Although trace agent is a general tool I would like to write up some use cases where this tool can be useful for you
 (and also for myself for future reference).
 
-### For JVM based languages other than Java (Scala, Clojure, Kotlin, ...)
+## For JVM based languages other than Java (Scala, Clojure, Kotlin, ...)
 
 If you can run an experiment you can use the regexp based matching to find out what pattern you should use exactly.
 When experimenting is not possible then you can use `javap` to find out what will be the final class and method name.
 
-#### Example
+### Example
 
 For example in case of a Spark Core method (which uses Scala) this can be done as follows. Let's say you would like to match for
 [createTaskScheduler](https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/SparkContext.scala#L2757).
@@ -388,7 +390,7 @@ So to measure the elapsed time within this method the actions can be:
 elapsed_time_in_ms org.apache.spark.SparkContext$ org$apache$spark$SparkContext$$createTaskScheduler
 ```
 
-### Spark driver client mode
+## Spark driver client mode
 
 In case of client mode when the driver is at node where you call spark-submit at you can simply start Spark with the config
 `spark.driver.extraJavaOptions` where you can specify `-javagent` with the trace-agent jar location:
@@ -400,7 +402,7 @@ $ spark-submit --conf "spark.driver.extraJavaOptions=-javaagent:trace-agent-0.0.
 TraceAgent (timing): `public scala.Tuple2 org.apache.spark.SparkContext$.org$apache$spark$SparkContext$$createTaskScheduler(org.apache.spark.SparkContext,java.lang.String,java.lang.String)` took 85 ms
 ```
 
-### Spark driver cluster mode
+## Spark driver cluster mode
 
 In case of cluster mode please upload the trace agent jar to HDFS and combine the `spark.jars` and `spark.driver.extraJavaOptions` configuration like this:
 
@@ -415,7 +417,7 @@ WARNING: YARN_OPTS has been replaced by HADOOP_OPTS. Using value of YARN_OPTS.
 TraceAgent (timing): `public scala.Tuple2 org.apache.spark.SparkContext$.org$apache$spark$SparkContext$$createTaskScheduler(org.apache.spark.SparkContext,java.lang.String,java.lang.String)` took 65 ms
 ```
 
-### Spark executor
+## Spark executor
 
 For example if we would like to measure the `onConnected` method of `CoarseGrainedExecutorBackend` then the actions must be:
 
@@ -459,7 +461,7 @@ TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecuto
 TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecutorBackend.onConnected(org.apache.spark.rpc.RpcAddress)` took 0 ms
 ```
 
-### Cloudera CDE
+## Cloudera CDE
 
 Here is how you can use Trace Agent with Cloudera CDE Spark jobs and specify an external `actions.txt` file:
 
