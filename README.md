@@ -336,7 +336,7 @@ Possible action args:
                         It is very usefull in case of the class histogram where classes taking the most memory are listed at the top.
 * `where`: The position where the command should be called relative to the instrumented method. It is one of `before`, `after` and `beforeAndAfter`.
 
-### The gcClassHistogram command
+### The diagnostic_command / gcClassHistogram subaction
 
 This can be used to identify memory leaks and this is where `beforeAndAfter` could be very useful if the method should cleanup after itself.
 
@@ -367,6 +367,104 @@ TraceAgent (diagnostic_command / gcClassHistogram): at the end of `public void n
    3:          5922         142128  java.lang.String
 
 methodWithArgs
+```
+
+### The diagnostic_command / threadPrint subaction
+
+This can be used to print out thee running thread when the execution reaches a method.
+
+Example `actions.txt`:
+
+```
+diagnostic_command net.test.TestClass2nd anotherMethod cmd:threadPrint,limit_output_lines:15
+```
+
+Example output:
+
+```
+TraceAgent (diagnostic_command / threadPrint): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:
+2021-05-21 16:50:51
+Full thread dump OpenJDK 64-Bit Server VM (25.292-b10 mixed mode):
+
+"Service Thread" #8 daemon prio=9 os_prio=0 tid=0x00007f2e904c0800 nid=0x6ee runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread1" #7 daemon prio=9 os_prio=0 tid=0x00007f2e904b1800 nid=0x6ed waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #6 daemon prio=9 os_prio=0 tid=0x00007f2e904af800 nid=0x6ec waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 tid=0x00007f2e90160000 nid=0x6eb runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=0 tid=0x00007f2e90129000 nid=0x6ea in Object.wait() [0x00007f2e94e43000]
+
+```
+
+### The diagnostic_command / vmNativeMemory subaction
+
+Prerequisite: the Native Memory Tracking (NMT) must be enabled fot the application which is traced.
+To enable NMT the app must be started with one of the following JVM argument:
+
+- `-XX:NativeMemoryTracking=summary`
+- `-XX:NativeMemoryTracking=detail`
+
+Example `actions.txt`:
+
+```
+diagnostic_command net.test.TestClass2nd anotherMethod cmd:vmNativeMemory
+```
+
+Example output:
+
+```
+TraceAgent (diagnostic_command / vmNativeMemory): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:
+
+Native Memory Tracking:
+
+Total: reserved=3183527KB, committed=214875KB
+-                 Java Heap (reserved=1781760KB, committed=112640KB)
+                            (mmap: reserved=1781760KB, committed=112640KB)
+
+-                     Class (reserved=1062197KB, committed=15157KB)
+                            (classes #2246)
+                            (malloc=3381KB #1231)
+                            (mmap: reserved=1058816KB, committed=11776KB)
+
+-                    Thread (reserved=11328KB, committed=11328KB)
+                            (thread #11)
+                            (stack: reserved=11280KB, committed=11280KB)
+                            (malloc=36KB #66)
+                            (arena=12KB #21)
+
+-                      Code (reserved=249848KB, committed=2784KB)
+                            (malloc=248KB #884)
+                            (mmap: reserved=249600KB, committed=2536KB)
+
+-                        GC (reserved=68566KB, committed=63138KB)
+                            (malloc=3466KB #116)
+                            (mmap: reserved=65100KB, committed=59672KB)
+
+-                  Compiler (reserved=241KB, committed=241KB)
+                            (malloc=12KB #87)
+                            (arena=229KB #6)
+
+-                  Internal (reserved=3556KB, committed=3556KB)
+                            (malloc=3524KB #3547)
+                            (mmap: reserved=32KB, committed=32KB)
+
+-                    Symbol (reserved=3469KB, committed=3469KB)
+                            (malloc=2406KB #11126)
+                            (arena=1063KB #1)
+
+-    Native Memory Tracking (reserved=402KB, committed=402KB)
+                            (malloc=109KB #1551)
+                            (tracking overhead=293KB)
+
+-               Arena Chunk (reserved=2159KB, committed=2159KB)
+                            (malloc=2159KB)
+
 ```
 
 # Summary of Parameters
