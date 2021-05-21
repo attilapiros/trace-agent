@@ -324,6 +324,51 @@ TraceAgent (trace_args_with_method_call): public default org.apache.hadoop.secur
 [Kind: testKind, Service: testService, Ident: 74 65 73 74 49 64 65 6e 74 69 66 69 65 72]
 ```
 
+## The diagnostic_command action
+
+This action provides generic access to Diagnostic Command MBean.
+Generic as via this action any parameterless diagnostic command can be executed.
+
+Possible action args:
+
+* `cmd`: The diagnostic command to run. For example `vmNativeMemory`, `gcClassHistogram`, `threadPrint`...
+* `limit_output_lines`: The number of lines which should be printed from the command output.
+                        It is very usefull in case of the class histogram where classes taking the most memory are listed at the top.
+* `where`: The position where the command should be called relative to the instrumented method. It is one of `before`, `after` and `beforeAndAfter`.
+
+### The gcClassHistogram command
+
+This can be used to identify memory leaks and this is where `beforeAndAfter` could be very useful if the method should cleanup after itself.
+
+Example `actions.txt`:
+
+```
+diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:beforeAndAfter
+```
+
+Example output:
+
+```
+TraceAgent (diagnostic_command / gcClassHistogram): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:
+
+ num     #instances         #bytes  class name
+----------------------------------------------
+   1:          5935         482360  [C
+   2:          2633         290624  java.lang.Class
+   3:          5919         142056  java.lang.String
+
+2nd Hello World!
+TraceAgent (diagnostic_command / gcClassHistogram): at the end of `public void net.test.TestClass2nd.anotherMethod()`:
+
+ num     #instances         #bytes  class name
+----------------------------------------------
+   1:          5938         482528  [C
+   2:          2633         290624  java.lang.Class
+   3:          5922         142128  java.lang.String
+
+methodWithArgs
+```
+
 # Summary of Parameters
 
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
