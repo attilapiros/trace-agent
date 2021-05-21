@@ -59,7 +59,7 @@ public class TestTraceAgent {
         }
       };
 
-  private Supplier<Stream<String>> toStremSupplier(String output) {
+  private Supplier<Stream<String>> toStreamSupplier(String output) {
     System.out.println(output);
     String lines[] = output.split("\n");
     return () -> Arrays.stream(lines);
@@ -68,7 +68,7 @@ public class TestTraceAgent {
   @Test
   public void testStackTrace() throws IOException {
     String output = runTraceAgent("stack_trace net.test.TestClass2nd anotherMethod");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(streamSupplier.get().anyMatch(s -> s.contains("TraceAgent (stack trace)")));
     assertTrue(
         streamSupplier
@@ -83,7 +83,7 @@ public class TestTraceAgent {
   @Test
   public void testTraceArgs() throws IOException {
     String output = runTraceAgent("trace_args net.test.TestClass2nd methodWithArgs");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -96,7 +96,7 @@ public class TestTraceAgent {
   @Test
   public void testTraceRetVal() throws IOException {
     String output = runTraceAgent("trace_retval net.test.TestClass2nd methodWithArgs");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -112,7 +112,7 @@ public class TestTraceAgent {
         runTraceAgent(
             "elapsed_time_in_nano net.test.TestClass test",
             "elapsed_time_in_ms net.test.TestClass2nd anotherMethod");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -130,9 +130,32 @@ public class TestTraceAgent {
   }
 
   @Test
+  public void testMultipleActionsOnTheSameMethod() throws IOException {
+    String output =
+        runTraceAgent(
+            "elapsed_time_in_nano net.test.TestClass test",
+            "elapsed_time_in_ms net.test.TestClass test");
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.matches(
+                        "TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ nano")));
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.matches(
+                        "TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ ms")));
+  }
+
+  @Test
   public void testCounter() throws IOException {
     String output = runTraceAgent("counter net.test.TestClass2nd anotherMethod count_frequency:1");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -145,7 +168,7 @@ public class TestTraceAgent {
     String output =
         runTraceAgent(
             "diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:beforeAndAfter");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -173,7 +196,7 @@ public class TestTraceAgent {
     String output =
         runTraceAgent(
             "diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:before");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -194,7 +217,7 @@ public class TestTraceAgent {
     String output =
         runTraceAgent(
             "diagnostic_command net.test.TestClass2nd anotherMethod cmd:gcClassHistogram,limit_output_lines:5,where:after");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -215,7 +238,7 @@ public class TestTraceAgent {
     String output =
         runTraceAgent(
             "diagnostic_command net.test.TestClass2nd anotherMethod cmd:threadPrint,limit_output_lines:15");
-    Supplier<Stream<String>> streamSupplier = toStremSupplier(output);
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier
             .get()
@@ -224,5 +247,12 @@ public class TestTraceAgent {
                     s.equals(
                         "TraceAgent (diagnostic_command / threadPrint): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
     assertTrue(streamSupplier.get().anyMatch(s -> s.contains("Full thread dump")));
+  }
+
+  @Test
+  public void testDiagnosticCommandNativeMemory() throws IOException {
+    String output =
+        runTraceAgent("diagnostic_command net.test.TestClass2nd anotherMethod cmd:vmNativeMemory");
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
   }
 }
