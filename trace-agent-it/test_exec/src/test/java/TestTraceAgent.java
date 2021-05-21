@@ -22,7 +22,7 @@ public class TestTraceAgent {
 
   private static CommandLine cmd =
       CommandLine.parse(
-          "java -javaagent:../../trace-agent/target/trace-agent-1.0-SNAPSHOT.jar=\"actionsFile:./"
+          "java -XX:NativeMemoryTracking=detail -javaagent:../../trace-agent/target/trace-agent-1.0-SNAPSHOT.jar=\"actionsFile:./"
               + ACTION_FILE_NAME
               + "\" "
               + "-jar ../sampleApp/target/sampleApp-1.0-SNAPSHOT.jar");
@@ -254,5 +254,13 @@ public class TestTraceAgent {
     String output =
         runTraceAgent("diagnostic_command net.test.TestClass2nd anotherMethod cmd:vmNativeMemory");
     Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(
+                s ->
+                    s.equals(
+                        "TraceAgent (diagnostic_command / vmNativeMemory): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
+    assertTrue(streamSupplier.get().anyMatch(s -> s.equals("Native Memory Tracking:")));
   }
 }
