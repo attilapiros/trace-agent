@@ -17,17 +17,17 @@ public class TestTraceAgent {
 
   DefaultExecutor executor = new DefaultExecutor();
   ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-  File actions = new File("actions.txt");
+  File actionFile = new File("actions.txt");
 
   @Before
   public void setUp() throws IOException {
     executor.setStreamHandler(new PumpStreamHandler(outputStream));
-    actions.createNewFile();
+    actionFile.createNewFile();
   }
 
   @After
   public void tearDown() {
-    actions.delete();
+    actionFile.delete();
   }
 
   @Test
@@ -86,7 +86,7 @@ public class TestTraceAgent {
   }
 
   private void createActions(String... actions) throws IOException {
-    FileWriter actionWriter = new FileWriter("actions.txt");
+    FileWriter actionWriter = new FileWriter(actionFile);
     for (String a : actions) {
       actionWriter.append(a + "\n");
     }
