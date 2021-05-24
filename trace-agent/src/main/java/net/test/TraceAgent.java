@@ -11,9 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class TraceAgent {
 
@@ -25,9 +23,7 @@ public class TraceAgent {
     String[] actionWithArgs = line.split("\\s+");
     final TraceAction traceAction;
     if (actionWithArgs.length == 4) {
-      traceAction =
-          new TraceAction(
-              actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
+      traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
     } else if (actionWithArgs.length == 3) {
       traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2]);
     } else {
@@ -80,11 +76,7 @@ public class TraceAgent {
       if (interceptor != null) {
         new AgentBuilder.Default()
             .type(action.getClassMatcher())
-            .transform(
-                (builder, type, classLoader, module) ->
-                    builder
-                        .method(action.getMethodMatcher())
-                        .intercept(MethodDelegation.to(interceptor)))
+            .transform((builder, type, classLoader, module) -> builder.method(action.getMethodMatcher()).intercept(MethodDelegation.to(interceptor)))
             .installOn(instrumentation);
       }
     }
@@ -92,15 +84,13 @@ public class TraceAgent {
   }
 
   private void install() {
-    List<TraceAction> allActions =
-        readActions(TraceAgent.class.getResourceAsStream("/actions.txt"));
+    List<TraceAction> allActions = readActions(TraceAgent.class.getResourceAsStream("/actions.txt"));
     String externalActionFile = traceAgentArgs.getExternalActionFilePath();
     if (externalActionFile != null) {
       try {
         allActions.addAll(readActions(new FileInputStream(externalActionFile)));
       } catch (FileNotFoundException fnf) {
-        System.err.println(
-            "TraceAgent does not find the external action file: " + externalActionFile);
+        System.err.println("TraceAgent does not find the external action file: " + externalActionFile);
       }
     }
     installActions(allActions);

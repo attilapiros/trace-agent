@@ -38,8 +38,7 @@ public class StackTraceInterceptor {
 
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS, LIMIT_COUNT);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS, LIMIT_COUNT);
 
   private CommonActionArgs commonActionArgs;
 

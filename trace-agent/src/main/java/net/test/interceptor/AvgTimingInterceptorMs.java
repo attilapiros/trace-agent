@@ -21,8 +21,7 @@ public class AvgTimingInterceptorMs {
 
   private static String WINDOW_LENGTH = "window_length";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, WINDOW_LENGTH);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, WINDOW_LENGTH);
 
   private CommonActionArgs commonActionArgs;
 

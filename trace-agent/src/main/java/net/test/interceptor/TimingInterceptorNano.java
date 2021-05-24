@@ -22,8 +22,7 @@ public class TimingInterceptorNano {
 
   private static String LOG_THRESHOLD_NANO = "log_threshold_nano";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_NANO);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_NANO);
 
   private CommonActionArgs commonActionArgs;
 
@@ -43,9 +42,7 @@ public class TimingInterceptorNano {
     } finally {
       long end = System.nanoTime();
       if (this.logThresholdNano == 0 || end - start >= this.logThresholdNano) {
-        System.out.println(
-            commonActionArgs.addPrefix(
-                "TraceAgent (timing): `" + method + "` took " + (end - start) + " nano"));
+        System.out.println(commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " nano"));
       }
     }
   }

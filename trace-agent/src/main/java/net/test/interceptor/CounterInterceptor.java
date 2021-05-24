@@ -23,8 +23,7 @@ public class CounterInterceptor {
 
   private static String COUNT_FREQUENCY = "count_frequency";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COUNT_FREQUENCY);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COUNT_FREQUENCY);
 
   private CommonActionArgs commonActionArgs;
 
@@ -39,13 +38,10 @@ public class CounterInterceptor {
   }
 
   @RuntimeType
-  public Object intercept(
-      @Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable)
-      throws Exception {
+  public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     counter++;
     if (counter % countFrequency == 0) {
-      System.out.println(
-          commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + counter));
+      System.out.println(commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + counter));
     }
     return callable.call();
   }

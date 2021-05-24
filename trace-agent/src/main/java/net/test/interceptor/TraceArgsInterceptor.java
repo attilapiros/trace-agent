@@ -23,8 +23,7 @@ public class TraceArgsInterceptor {
 
   private static String LOG_THRESHOLD_MILLISECONDS = "log_threshold_ms";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, LOG_THRESHOLD_MILLISECONDS);
 
   private CommonActionArgs commonActionArgs;
 
@@ -37,21 +36,14 @@ public class TraceArgsInterceptor {
   }
 
   @RuntimeType
-  public Object intercept(
-      @Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable)
-      throws Exception {
+  public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     try {
       return callable.call();
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
       if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
-        System.out.println(
-            commonActionArgs.addPrefix(
-                "TraceAgent (trace_args): `"
-                    + method
-                    + " called with "
-                    + Arrays.toString(allArguments)));
+        System.out.println(commonActionArgs.addPrefix("TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments)));
       }
     }
   }

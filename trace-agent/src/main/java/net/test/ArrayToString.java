@@ -20,9 +20,8 @@ import java.lang.reflect.Array;
 public final class ArrayToString {
 
   /**
-   * <code>aArray</code> is a possibly-null array whose elements are primitives or objects; arrays
-   * of arrays are also valid, in which case <code>aArray</code> is rendered in a nested, recursive
-   * fashion.
+   * <code>aArray</code> is a possibly-null array whose elements are primitives or objects; arrays of arrays are also valid, in which case <code>aArray</code> is rendered in a
+   * nested, recursive fashion.
    */
   public static String get(Object array) {
     if (array == null) return NULL;

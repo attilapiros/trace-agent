@@ -22,8 +22,7 @@ public class TraceArgsWithMethodCallInterceptor {
 
   private static String METHOD_TO_CALL = "method_to_call";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, PARAM_INDEX, METHOD_TO_CALL);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, PARAM_INDEX, METHOD_TO_CALL);
 
   private CommonActionArgs commonActionArgs;
 
@@ -39,9 +38,7 @@ public class TraceArgsWithMethodCallInterceptor {
   }
 
   @RuntimeType
-  public Object intercept(
-      @Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable)
-      throws Exception {
+  public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     String retVal = "";
     if (allArguments.length > paramIndex) {
       try {
@@ -51,11 +48,7 @@ public class TraceArgsWithMethodCallInterceptor {
         retVal = "No such method found: " + methodToCallName;
       }
     } else {
-      retVal =
-          "Parameter tried to be get with index "
-              + paramIndex
-              + " but max index is "
-              + (allArguments.length - 1);
+      retVal = "Parameter tried to be get with index " + paramIndex + " but max index is " + (allArguments.length - 1);
     }
     System.out.println(
         commonActionArgs.addPrefix(

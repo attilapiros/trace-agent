@@ -23,8 +23,7 @@ public class TraceLoginConfigInterceptor {
 
   private static String ENTRY_NAME = "entry_name";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, ENTRY_NAME);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, ENTRY_NAME);
 
   private CommonActionArgs commonActionArgs;
 
@@ -37,9 +36,7 @@ public class TraceLoginConfigInterceptor {
   }
 
   @RuntimeType
-  public Object intercept(
-      @Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable)
-      throws Exception {
+  public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     Configuration config = Configuration.getConfiguration();
     AppConfigurationEntry[] appConfigurationEntries = config.getAppConfigurationEntry(entryName);
     String entries = "";
@@ -55,14 +52,7 @@ public class TraceLoginConfigInterceptor {
     if (entries.isEmpty()) {
       entries = "Not Found";
     }
-    System.out.println(
-        commonActionArgs.addPrefix(
-            "TraceAgent (trace_login_config): `"
-                + method
-                + " login config for entry \""
-                + entryName
-                + "\"\n"
-                + entries));
+    System.out.println(commonActionArgs.addPrefix("TraceAgent (trace_login_config): `" + method + " login config for entry \"" + entryName + "\"\n" + entries));
     return callable.call();
   }
 }

@@ -11,13 +11,7 @@ public class ArgumentsCollection extends HashMap<String, String> {
       try {
         valueInt = Integer.valueOf(valueStr);
       } catch (NumberFormatException nfe) {
-        System.err.println(
-            "TraceAgent: number format exception at parseInt() for `"
-                + key
-                + "` param value: `"
-                + valueStr
-                + "` using the default: "
-                + defaultValue);
+        System.err.println("TraceAgent: number format exception at parseInt() for `" + key + "` param value: `" + valueStr + "` using the default: " + defaultValue);
       }
     }
     return valueInt;
@@ -30,13 +24,7 @@ public class ArgumentsCollection extends HashMap<String, String> {
       try {
         valueLong = Long.valueOf(valueStr);
       } catch (NumberFormatException nfe) {
-        System.err.println(
-            "TraceAgent: number format exception at parseLong() for `"
-                + key
-                + "` param value: `"
-                + valueStr
-                + "` using the default: "
-                + defaultValue);
+        System.err.println("TraceAgent: number format exception at parseLong() for `" + key + "` param value: `" + valueStr + "` using the default: " + defaultValue);
       }
     }
     return valueLong;

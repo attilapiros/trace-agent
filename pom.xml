@@ -97,7 +97,7 @@
               <filterModified>false</filterModified>
               <skip>false</skip>
               <fixImports>false</fixImports>
-              <maxLineLength>100</maxLineLength>
+              <maxLineLength>180</maxLineLength>
             </configuration>
             <goals>
               <goal>format</goal>

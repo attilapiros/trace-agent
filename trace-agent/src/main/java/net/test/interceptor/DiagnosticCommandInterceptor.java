@@ -41,8 +41,7 @@ public class DiagnosticCommandInterceptor {
 
   private static String LIMIT_OUTPUT_LINES = "limit_output_lines";
 
-  private static List<String> KNOWN_ARGS =
-      Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE);
 
   private CommonActionArgs commonActionArgs;
 
@@ -74,12 +73,7 @@ public class DiagnosticCommandInterceptor {
         isAfter = true;
         break;
       default:
-        System.out.println(
-            "TraceAgent: (diagnostic_command / "
-                + command
-                + ") invalid value for `where`: "
-                + where
-                + ". Action is switched off!");
+        System.out.println("TraceAgent: (diagnostic_command / " + command + ") invalid value for `where`: " + where + ". Action is switched off!");
         isBefore = false;
         isAfter = false;
     }
@@ -88,13 +82,7 @@ public class DiagnosticCommandInterceptor {
   private String invokeNoStringArgumentsCommand(final String operationName) {
     String result;
     try {
-      result =
-          (String)
-              diagServer.invoke(
-                  diagObj,
-                  operationName,
-                  new Object[] {null},
-                  new String[] {String[].class.getName()});
+      result = (String) diagServer.invoke(diagObj, operationName, new Object[] {null}, new String[] {String[].class.getName()});
     } catch (InstanceNotFoundException | ReflectionException | MBeanException exception) {
       result = "ERROR: Unable to access '" + operationName + "' - " + exception;
     }
@@ -145,8 +133,7 @@ public class DiagnosticCommandInterceptor {
                       + "): at the end of `"
                       + method
                       + "`:\n"
-                      + getFirstLines(
-                          invokeNoStringArgumentsCommand(command), limitForOutputLines)));
+                      + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
         }
       }
     }
