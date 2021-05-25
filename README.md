@@ -612,6 +612,8 @@ Here is how you can use Trace Agent with Cloudera CDE Spark jobs and specify an 
 cde spark submit spark-examples_2.11-2.4.7.7.2.10.0-120.jar 10 --class org.apache.spark.examples.SparkPi --job-name test-job-1 --tls-insecure --conf "spark.driver.extraJavaOptions=-javaagent:/app/mount/trace-agent-1.0-SNAPSHOT.jar=actionsFile:/app/mount/actions.txt" --jar trace-agent-1.0-SNAPSHOT.jar --file actions.txt
 ```
 
+This method works with executors as well, in which case `spark.executor.extraJavaOptions` needs to be set instead of `spark.driver.extraJavaOptions`.
+
 # Replacing actions directly into the jar
 
 ```bash
