@@ -74,7 +74,18 @@ public class TraceAgent {
     for (TraceAction action : actions) {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
-        new AgentBuilder.Default()
+        AgentBuilder agentBuilder = new AgentBuilder.Default();
+
+        if (traceAgentArgs.isAgentLogEnabled()) {
+          agentBuilder = agentBuilder.with(AgentBuilder.Listener.StreamWriting.toSystemError()).with(AgentBuilder.InstallationListener.StreamWriting.toSystemError());
+
+          // // should the default RedefinitionStrategy (DISABLED) be overridden,
+          // // this is the way to enable logging on the non-default strategy:
+          // agentBuilder = agentBuilder
+          //   .with(RedefinitionStrategy.RETRANSFORMATION)
+          //   .with(AgentBuilder.RedefinitionStrategy.Listener.StreamWriting.toSystemError());
+        }
+        agentBuilder
             .type(action.getClassMatcher())
             .transform((builder, type, classLoader, module) -> builder.method(action.getMethodMatcher()).intercept(MethodDelegation.to(interceptor)))
             .installOn(instrumentation);
