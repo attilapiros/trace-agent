@@ -75,25 +75,16 @@ public class TraceAgent {
       final Object interceptor = action.getActionInterceptor(traceAgentArgs);
       if (interceptor != null) {
         AgentBuilder agentBuilder = new AgentBuilder.Default();
-        AgentBuilder.RedefinitionStrategy redefinitionStrategy =
-            AgentBuilder.RedefinitionStrategy.DISABLED;
 
         if (traceAgentArgs.isAgentLogEnabled()) {
-          if (redefinitionStrategy == AgentBuilder.RedefinitionStrategy.DISABLED) {
-            agentBuilder =
-                agentBuilder
-                    .with(AgentBuilder.Listener.StreamWriting.toSystemError())
-                    .with(AgentBuilder.InstallationListener.StreamWriting.toSystemError());
-          } else {
-            agentBuilder =
-                agentBuilder
-                    .with(AgentBuilder.Listener.StreamWriting.toSystemError())
-                    .with(AgentBuilder.InstallationListener.StreamWriting.toSystemError())
-                    .with(redefinitionStrategy)
-                    .with(AgentBuilder.RedefinitionStrategy.Listener.StreamWriting.toSystemError());
-          }
-        }
+          agentBuilder = agentBuilder.with(AgentBuilder.Listener.StreamWriting.toSystemError()).with(AgentBuilder.InstallationListener.StreamWriting.toSystemError());
 
+          // // should the default RedefinitionStrategy (DISABLED) be overridden,
+          // // this is the way to enable logging on the non-default strategy:
+          // agentBuilder = agentBuilder
+          //   .with(RedefinitionStrategy.RETRANSFORMATION)
+          //   .with(AgentBuilder.RedefinitionStrategy.Listener.StreamWriting.toSystemError());
+        }
         agentBuilder
             .type(action.getClassMatcher())
             .transform((builder, type, classLoader, module) -> builder.method(action.getMethodMatcher()).intercept(MethodDelegation.to(interceptor)))

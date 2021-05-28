@@ -19,7 +19,8 @@ public class TraceAgentArgs implements DefaultArguments {
   private final Boolean isDateLoggedFlag;
 
   public TraceAgentArgs(String arguments) {
-    Map<String, String> parsedArgs = ArgUtils.parseOptionalArgs(Arrays.asList(EXTERNAL_ACTION_FILE_PATH, ENABLE_AGENT_LOG, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED), arguments);
+    Map<String, String> parsedArgs =
+        ArgUtils.parseOptionalArgs(Arrays.asList(EXTERNAL_ACTION_FILE_PATH, ENABLE_AGENT_LOG, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED), arguments);
     this.externalActionFilePath = parsedArgs.get(EXTERNAL_ACTION_FILE_PATH);
     this.enableAgentLog = Boolean.valueOf(parsedArgs.get(ENABLE_AGENT_LOG));
 
