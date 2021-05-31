@@ -38,10 +38,11 @@ public class DiagnosticCommandInterceptor {
   private static String COMMAND = "cmd";
 
   private static String WHERE = "where";
+  private static String WITH_GC = "with_gc";
 
   private static String LIMIT_OUTPUT_LINES = "limit_output_lines";
 
-  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE, WITH_GC);
 
   private CommonActionArgs commonActionArgs;
 
@@ -52,12 +53,14 @@ public class DiagnosticCommandInterceptor {
   private final boolean isBefore;
 
   private final boolean isAfter;
+  private final boolean withGC;
 
   public DiagnosticCommandInterceptor(String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.command = parsed.get(COMMAND);
     this.limitForOutputLines = parsed.parseInt(LIMIT_OUTPUT_LINES, -1);
+    this.withGC = parsed.parseBoolean(WITH_GC, false);
     final String where = parsed.getOrDefault(WHERE, "before");
     switch (where) {
       case "before":
@@ -107,12 +110,26 @@ public class DiagnosticCommandInterceptor {
     }
   }
 
+  private void forceGC() {
+    Object obj = new Object();
+    java.lang.ref.WeakReference ref = new java.lang.ref.WeakReference<Object>(obj);
+    obj = null;
+    invokeNoStringArgumentsCommand("GC.run");
+    while (ref.get() != null) {
+      System.out.println("TraceAgent (diagnostic_command) call System.gc()");
+      System.gc();
+    }
+  }
+
   @RuntimeType
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
     if (diagObj == null) {
       return callable.call();
     } else {
       if (isBefore) {
+        if (withGC) {
+          forceGC();
+        }
         System.out.println(
             commonActionArgs.addPrefix(
                 "TraceAgent (diagnostic_command / "
@@ -126,6 +143,9 @@ public class DiagnosticCommandInterceptor {
         return callable.call();
       } finally {
         if (isAfter) {
+          if (withGC) {
+            forceGC();
+          }
           System.out.println(
               commonActionArgs.addPrefix(
                   "TraceAgent (diagnostic_command / "

@@ -4,6 +4,15 @@ import java.util.HashMap;
 
 public class ArgumentsCollection extends HashMap<String, String> {
 
+  public boolean parseBoolean(String key, boolean defaultValue) {
+    String valueStr = this.get(key);
+    boolean valueBool = defaultValue;
+    if (valueStr != null) {
+      valueBool = Boolean.valueOf(valueStr);
+    }
+    return valueBool;
+  }
+
   public int parseInt(String key, int defaultValue) {
     String valueStr = this.get(key);
     int valueInt = defaultValue;
