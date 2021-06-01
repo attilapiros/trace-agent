@@ -55,6 +55,8 @@ class TraceAction {
       interceptor = new TraceArgsWithMethodCallInterceptor(actionArgs, defaultArguments);
     } else if (actionId.equals(DiagnosticCommandInterceptor.NAME)) {
       interceptor = new DiagnosticCommandInterceptor(actionArgs, defaultArguments);
+    } else if (actionId.equals(HeapDumpCommandInterceptor.NAME)) {
+      interceptor = new HeapDumpCommandInterceptor(actionArgs, defaultArguments);
     } else {
       System.err.println("TraceAgent detected an invalid action: " + actionId);
       interceptor = null;

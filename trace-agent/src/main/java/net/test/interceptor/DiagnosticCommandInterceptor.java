@@ -38,6 +38,7 @@ public class DiagnosticCommandInterceptor {
   private static String COMMAND = "cmd";
 
   private static String WHERE = "where";
+
   private static String WITH_GC = "with_gc";
 
   private static String LIMIT_OUTPUT_LINES = "limit_output_lines";
@@ -53,6 +54,7 @@ public class DiagnosticCommandInterceptor {
   private final boolean isBefore;
 
   private final boolean isAfter;
+
   private final boolean withGC;
 
   public DiagnosticCommandInterceptor(String actionArgs, DefaultArguments defaults) {
