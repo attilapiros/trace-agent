@@ -232,6 +232,37 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
+#### Enable agent logging
+
+To troubleshoot the process of class transformation and instrumentation verbose logging on
+the steps executed by the javaagent can be enabled with the `enableAgentLog` flag (if unspecified, its default value is `false`).
+
+The structure of the logging output is dependent on the instrumentation library used (currently ByteBuddy's internal format), and is subject to change.
+
+The agent log will be written to the stdout.
+
+Example usage:
+
+```
+java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="actionsFile:./actions.txt,enableAgentLog:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
+```
+Example output:
+```
+TraceAgent is initializing
+TraceAgent tries to install actions: [{actionId='trace_args', classMatcher='DummyApp', methodMatcher='intMethod', actionArgs='null'}, ... ]
+[Byte Buddy] BEFORE_INSTALL net.bytebuddy.agent.builder.AgentBuilder$Default$ExecutingTransformer@4de8b406 on sun.instrument.InstrumentationImpl@3c756e4d
+[Byte Buddy] INSTALL net.bytebuddy.agent.builder.AgentBuilder$Default$ExecutingTransformer@4de8b406 on sun.instrument.InstrumentationImpl@3c756e4d
+# ...
+TraceAgent installed actions successfully
+# ...
+[Byte Buddy] TRANSFORM DummyApp [sun.misc.Launcher$AppClassLoader@18b4aac2, null, loaded=false]
+[Byte Buddy] COMPLETE DummyApp [sun.misc.Launcher$AppClassLoader@18b4aac2, null, loaded=false]
+[Byte Buddy] DISCOVERY DummyApp [sun.misc.Launcher$AppClassLoader@18b4aac2, null, loaded=false]
+[Byte Buddy] IGNORE DummyApp [sun.misc.Launcher$AppClassLoader@18b4aac2, null, loaded=false]
+[Byte Buddy] COMPLETE DummyApp [sun.misc.Launcher$AppClassLoader@18b4aac2, null, loaded=false]
+# ...
+```
+
 # Actions
 
 ## The counter action
