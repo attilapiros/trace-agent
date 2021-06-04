@@ -82,7 +82,6 @@ public class HeapDumpCommandInterceptor {
     StringBuilder stringBuilder = new StringBuilder(methodName);
     stringBuilder.append("_");
     stringBuilder.append(index.getAndIncrement());
-    stringBuilder.append("_onlyLiveObjects");
     if (isBefore) {
       stringBuilder.append("_before");
     } else {

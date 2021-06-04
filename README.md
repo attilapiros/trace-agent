@@ -365,7 +365,7 @@ Possible action args:
 * `cmd`: The diagnostic command to run. For example `vmNativeMemory`, `gcClassHistogram`, `threadPrint`...
 * `limit_output_lines`: The number of lines which should be printed from the command output.
                         It is very usefull in case of the class histogram where classes taking the most memory are listed at the top.
-* `where`: The position where the command should be called relative to the instrumented method. It is one of `before`, `after` and `beforeAndAfter`.
+* `where`: The position where the command should be called relative to the instrumented method. It is one of `before` (default), `after` and `beforeAndAfter`.
 
 ### The diagnostic_command / gcClassHistogram subaction
 
@@ -496,6 +496,21 @@ Total: reserved=3183527KB, committed=214875KB
 -               Arena Chunk (reserved=2159KB, committed=2159KB)
                             (malloc=2159KB)
 
+```
+
+## The heap_dump action
+
+This action can be used to request a heap dump.
+
+Possible action args:
+
+* `where`: The position where the command should be called relative to the instrumented method. It is one of `before` (default), `after` and `beforeAndAfter`.
+* `live_objects`: If `true` (default) dump only live objects i.e. objects that are reachable from others.
+
+Heapdump file names follows the following patttern:
+
+```
+{requestedMethodName}_{globalNumericIndex}_[before|after]_[onlyLiveObjects|includingUnreachableObjects].hprof
 ```
 
 # Summary of Parameters
