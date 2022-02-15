@@ -579,6 +579,14 @@ So to measure the elapsed time within this method the actions can be:
 elapsed_time_in_ms org.apache.spark.SparkContext$ org$apache$spark$SparkContext$$createTaskScheduler
 ```
 
+## Spark submit
+
+When the submit process itself need to be traced then in the `SPARK_SUBMIT_OPTS` environment variable the trace agent have to be given as a java agent:
+
+```
+export SPARK_SUBMIT_OPTS="-javaagent:trace-agent-0.0.8.jar"
+```
+
 ## Spark driver client mode
 
 In case of client mode when the driver is at node where you call spark-submit at you can simply start Spark with the config
@@ -587,7 +595,7 @@ In case of client mode when the driver is at node where you call spark-submit at
 Example (when you are in the same directory where the trace-agent jar is stored):
 
 ```
-$ spark-submit --conf "spark.driver.extraJavaOptions=-javaagent:trace-agent-0.0.2.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode client --master yarn spark-examples_2.11-2.4.5.jar 100 2> /dev/null | grep TraceAgent
+$ spark-submit --conf "spark.driver.extraJavaOptions=-javaagent:trace-agent-0.0.8.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode client --master yarn spark-examples_2.11-2.4.5.jar 100 2> /dev/null | grep TraceAgent
 TraceAgent (timing): `public scala.Tuple2 org.apache.spark.SparkContext$.org$apache$spark$SparkContext$$createTaskScheduler(org.apache.spark.SparkContext,java.lang.String,java.lang.String)` took 85 ms
 ```
 
@@ -596,8 +604,8 @@ TraceAgent (timing): `public scala.Tuple2 org.apache.spark.SparkContext$.org$apa
 In case of cluster mode please upload the trace agent jar to HDFS and combine the `spark.jars` and `spark.driver.extraJavaOptions` configuration like this:
 
 ```
-$ hdfs dfs -put trace-agent-0.0.2.jar /tmp
-$ spark-submit --conf "spark.jars=hdfs:/tmp/trace-agent-0.0.2.jar" --conf "spark.driver.extraJavaOptions=-javaagent:trace-agent-0.0.2.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode cluster --master yarn spark-examples_2.11-2.4.5.jar 100
+$ hdfs dfs -put trace-agent-0.0.8.jar /tmp
+$ spark-submit --conf "spark.jars=hdfs:/tmp/trace-agent-0.0.8.jar" --conf "spark.driver.extraJavaOptions=-javaagent:trace-agent-0.0.8.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode cluster --master yarn spark-examples_2.11-2.4.5.jar 100
 ...
 20/04/14 19:56:45 INFO yarn.Client: Submitting application application_1586873980905_0010 to ResourceManager
 ....
@@ -617,7 +625,7 @@ elapsed_time_in_ms org.apache.spark.executor.CoarseGrainedExecutorBackend onConn
 The jar on the HDFS must be refreshed and the submit should be called with `spark.jars` and `spark.executor.extraJavaOptions` configs, like this:
 
 ```
-$ spark-submit --conf "spark.jars=hdfs:/tmp/trace-agent-0.0.2.jar" --conf "spark.executor.extraJavaOptions=-javaagent:trace-agent-0.0.2.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode cluster --master yarn spark-examples_2.11-2.4.5.jar 100
+$ spark-submit --conf "spark.jars=hdfs:/tmp/trace-agent-0.0.8.jar" --conf "spark.executor.extraJavaOptions=-javaagent:trace-agent-0.0.8.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode cluster --master yarn spark-examples_2.11-2.4.5.jar 100
 ...
 20/04/14 20:27:05 INFO impl.YarnClientImpl: Submitted application application_1586873980905_0012
 ...
