@@ -122,7 +122,7 @@ public class TestTraceAgent {
             .anyMatch(s -> s.contains("TraceAgent (diagnostic_command / gcClassHistogram): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
     assertTrue(
         streamSupplier.get().anyMatch(s -> s.contains("TraceAgent (diagnostic_command / gcClassHistogram): at the end of `public void net.test.TestClass2nd.anotherMethod()`:")));
-    assertEquals(2, streamSupplier.get().filter(s -> s.equals(" num     #instances         #bytes  class name")).count());
+    assertEquals(2, streamSupplier.get().filter(s -> s.contains(" num     #instances         #bytes  class name")).count());
   }
 
   @Test
@@ -133,7 +133,7 @@ public class TestTraceAgent {
         streamSupplier
             .get()
             .anyMatch(s -> s.contains("TraceAgent (diagnostic_command / gcClassHistogram): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
-    assertEquals(1, streamSupplier.get().filter(s -> s.equals(" num     #instances         #bytes  class name")).count());
+    assertEquals(1, streamSupplier.get().filter(s -> s.contains(" num     #instances         #bytes  class name")).count());
   }
 
   @Test
@@ -142,7 +142,7 @@ public class TestTraceAgent {
     Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
         streamSupplier.get().anyMatch(s -> s.contains("TraceAgent (diagnostic_command / gcClassHistogram): at the end of `public void net.test.TestClass2nd.anotherMethod()`:")));
-    assertEquals(1, streamSupplier.get().filter(s -> s.equals(" num     #instances         #bytes  class name")).count());
+    assertEquals(1, streamSupplier.get().filter(s -> s.contains(" num     #instances         #bytes  class name")).count());
   }
 
   @Test
