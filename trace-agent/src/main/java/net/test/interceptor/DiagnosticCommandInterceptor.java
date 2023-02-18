@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -57,7 +58,9 @@ public class DiagnosticCommandInterceptor {
 
   private final boolean withGC;
 
-  public DiagnosticCommandInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public DiagnosticCommandInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.command = parsed.get(COMMAND);
@@ -78,10 +81,11 @@ public class DiagnosticCommandInterceptor {
         isAfter = true;
         break;
       default:
-        System.out.println("TraceAgent: (diagnostic_command / " + command + ") invalid value for `where`: " + where + ". Action is switched off!");
+        globalArguments.getTargetStream().println("TraceAgent: (diagnostic_command / " + command + ") invalid value for `where`: " + where + ". Action is switched off!");
         isBefore = false;
         isAfter = false;
     }
+    this.globalArguments = globalArguments;
   }
 
   private String invokeNoStringArgumentsCommand(final String operationName) {
@@ -118,7 +122,7 @@ public class DiagnosticCommandInterceptor {
     obj = null;
     invokeNoStringArgumentsCommand("GC.run");
     while (ref.get() != null) {
-      System.out.println("TraceAgent (diagnostic_command) call System.gc()");
+      globalArguments.getTargetStream().println("TraceAgent (diagnostic_command) call System.gc()");
       System.gc();
     }
   }
@@ -132,14 +136,16 @@ public class DiagnosticCommandInterceptor {
         if (withGC) {
           forceGC();
         }
-        System.out.println(
-            commonActionArgs.addPrefix(
-                "TraceAgent (diagnostic_command / "
-                    + command
-                    + "): at the beginning of `"
-                    + method
-                    + "`:\n"
-                    + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
+        globalArguments
+            .getTargetStream()
+            .println(
+                commonActionArgs.addPrefix(
+                    "TraceAgent (diagnostic_command / "
+                        + command
+                        + "): at the beginning of `"
+                        + method
+                        + "`:\n"
+                        + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
       }
       try {
         return callable.call();
@@ -148,14 +154,16 @@ public class DiagnosticCommandInterceptor {
           if (withGC) {
             forceGC();
           }
-          System.out.println(
-              commonActionArgs.addPrefix(
-                  "TraceAgent (diagnostic_command / "
-                      + command
-                      + "): at the end of `"
-                      + method
-                      + "`:\n"
-                      + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
+          globalArguments
+              .getTargetStream()
+              .println(
+                  commonActionArgs.addPrefix(
+                      "TraceAgent (diagnostic_command / "
+                          + command
+                          + "): at the end of `"
+                          + method
+                          + "`:\n"
+                          + getFirstLines(invokeNoStringArgumentsCommand(command), limitForOutputLines)));
         }
       }
     }

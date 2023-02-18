@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -27,15 +28,18 @@ public class AvgTimingInterceptorMs {
 
   private final int window_length;
 
+  private final GlobalArguments globalArguments;
+
   private volatile long window_min = 0;
   private volatile long window_max = 0;
   private volatile long window_sum = 0;
   private volatile int window_index = 0;
 
-  public AvgTimingInterceptorMs(String actionArgs, DefaultArguments defaults) {
+  public AvgTimingInterceptorMs(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.window_length = parsed.parseInt(WINDOW_LENGTH, 100);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -57,20 +61,22 @@ public class AvgTimingInterceptorMs {
         window_max = elapsedTime;
       }
       if (window_index == window_length) {
-        System.out.println(
-            commonActionArgs.addPrefix(
-                "TraceAgent ("
-                    + NAME
-                    + "): `"
-                    + method
-                    + "` window_length: "
-                    + window_length
-                    + " min: "
-                    + window_min
-                    + " avg: "
-                    + window_sum / window_length
-                    + " max: "
-                    + window_max));
+        globalArguments
+            .getTargetStream()
+            .println(
+                commonActionArgs.addPrefix(
+                    "TraceAgent ("
+                        + NAME
+                        + "): `"
+                        + method
+                        + "` window_length: "
+                        + window_length
+                        + " min: "
+                        + window_min
+                        + " avg: "
+                        + window_sum / window_length
+                        + " max: "
+                        + window_max));
         window_index = 0;
         window_sum = 0;
       }

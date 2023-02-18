@@ -1,5 +1,6 @@
 package net.test;
 
+import java.io.PrintStream;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Map;
@@ -9,6 +10,7 @@ public class TraceAgentArgs implements DefaultArguments {
   private static final String EXTERNAL_ACTION_FILE_PATH = "actionsFile";
   private static final String ENABLE_AGENT_LOG = "enableAgentLog";
   private static final String DATE_TIME_FORMAT = "dateTimeFormat";
+  private static final String TARGET_STREAM = "targetStream";
 
   private final String externalActionFilePath;
 
@@ -18,10 +20,17 @@ public class TraceAgentArgs implements DefaultArguments {
 
   private final Boolean isDateLoggedFlag;
 
+  private final PrintStream targetStream;
+
   public TraceAgentArgs(String arguments) {
     Map<String, String> parsedArgs =
-        ArgUtils.parseOptionalArgs(Arrays.asList(EXTERNAL_ACTION_FILE_PATH, ENABLE_AGENT_LOG, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED), arguments);
+        ArgUtils.parseOptionalArgs(Arrays.asList(EXTERNAL_ACTION_FILE_PATH, ENABLE_AGENT_LOG, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED, TARGET_STREAM), arguments);
     this.externalActionFilePath = parsedArgs.get(EXTERNAL_ACTION_FILE_PATH);
+    if (parsedArgs.getOrDefault(TARGET_STREAM, "stdout").equals("stderr")) {
+      this.targetStream = System.err;
+    } else {
+      this.targetStream = System.out;
+    }
     this.enableAgentLog = Boolean.valueOf(parsedArgs.get(ENABLE_AGENT_LOG));
 
     final String dateTimeFormatStr = parsedArgs.get(DATE_TIME_FORMAT);
@@ -49,5 +58,9 @@ public class TraceAgentArgs implements DefaultArguments {
 
   public boolean isDateLogged() {
     return this.isDateLoggedFlag;
+  }
+
+  public PrintStream getTargetStream() {
+    return targetStream;
   }
 }

@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -32,7 +33,7 @@ public class HeapDumpCommandInterceptor {
       HotSpotDiagnosticMXBean mxBean = ManagementFactory.newPlatformMXBeanProxy(server, "com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
       mxBean.dumpHeap(filePath, live);
     } catch (IOException e) {
-      System.out.println("TraceAgent: (heap_dump). IOException at file: " + filePath + "!");
+      System.err.println("TraceAgent: (heap_dump). IOException at file: " + filePath + "!");
       e.printStackTrace(System.out);
     }
   }
@@ -53,7 +54,9 @@ public class HeapDumpCommandInterceptor {
 
   private static final AtomicInteger index = new AtomicInteger(0);
 
-  public HeapDumpCommandInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public HeapDumpCommandInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.liveObjects = parsed.parseBoolean(LIVE_OBJECTS, true);
@@ -72,10 +75,11 @@ public class HeapDumpCommandInterceptor {
         isAfter = true;
         break;
       default:
-        System.out.println("TraceAgent: (heap_dump) invalid value for `where`: " + where + ". Action is switched off!");
+        globalArguments.getTargetStream().println("TraceAgent: (heap_dump) invalid value for `where`: " + where + ". Action is switched off!");
         isBefore = false;
         isAfter = false;
     }
+    this.globalArguments = globalArguments;
   }
 
   private static String filename(String methodName, boolean isBefore, boolean liveObjects) {
@@ -100,7 +104,7 @@ public class HeapDumpCommandInterceptor {
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
     if (isBefore) {
       String fName = filename(method.getName(), true, liveObjects);
-      System.out.println(commonActionArgs.addPrefix("TraceAgent (heap_dump): at the beginning of `" + method + "` to " + fName));
+      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (heap_dump): at the beginning of `" + method + "` to " + fName));
       dumpHeap(fName, liveObjects);
     }
     try {
@@ -108,7 +112,7 @@ public class HeapDumpCommandInterceptor {
     } finally {
       if (isAfter) {
         String fName = filename(method.getName(), false, liveObjects);
-        System.out.println(commonActionArgs.addPrefix("TraceAgent (heap_dump): at the end of `" + method + "` to " + fName));
+        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (heap_dump): at the end of `" + method + "` to " + fName));
         dumpHeap(fName, liveObjects);
       }
     }

@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -31,17 +32,20 @@ public class CounterInterceptor {
 
   private long counter = 0;
 
-  public CounterInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public CounterInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.countFrequency = parsed.parseInt(COUNT_FREQUENCY, 100);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     counter++;
     if (counter % countFrequency == 0) {
-      System.out.println(commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + counter));
+      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + counter));
     }
     return callable.call();
   }

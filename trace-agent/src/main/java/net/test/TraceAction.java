@@ -17,15 +17,18 @@ class TraceAction {
 
   private final String actionArgs;
 
-  public TraceAction(String actionId, String classMatcherExp, String methodMatcherExp, String actionArgs) {
+  private final GlobalArguments globalArguments;
+
+  public TraceAction(GlobalArguments globalArguments, String actionId, String classMatcherExp, String methodMatcherExp, String actionArgs) {
     this.actionId = actionId;
     this.classMatcherExp = classMatcherExp;
     this.methodMatcherExp = methodMatcherExp;
     this.actionArgs = actionArgs;
+    this.globalArguments = globalArguments;
   }
 
-  public TraceAction(String actionId, String classMatcherExp, String methodMatcherExp) {
-    this(actionId, classMatcherExp, methodMatcherExp, null);
+  public TraceAction(GlobalArguments globalArguments, String actionId, String classMatcherExp, String methodMatcherExp) {
+    this(globalArguments, actionId, classMatcherExp, methodMatcherExp, null);
   }
 
   @Override
@@ -36,27 +39,27 @@ class TraceAction {
   public Object getActionInterceptor(DefaultArguments defaultArguments) {
     final Object interceptor;
     if (actionId.equals(TimingInterceptorNano.NAME)) {
-      interceptor = new TimingInterceptorNano(actionArgs, defaultArguments);
+      interceptor = new TimingInterceptorNano(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(TimingInterceptorMs.NAME)) {
-      interceptor = new TimingInterceptorMs(actionArgs, defaultArguments);
+      interceptor = new TimingInterceptorMs(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(StackTraceInterceptor.NAME)) {
-      interceptor = new StackTraceInterceptor(actionArgs, defaultArguments);
+      interceptor = new StackTraceInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(TraceArgsInterceptor.NAME)) {
-      interceptor = new TraceArgsInterceptor(actionArgs, defaultArguments);
+      interceptor = new TraceArgsInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(TraceRetValueInterceptor.NAME)) {
-      interceptor = new TraceRetValueInterceptor(actionArgs, defaultArguments);
+      interceptor = new TraceRetValueInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(CounterInterceptor.NAME)) {
-      interceptor = new CounterInterceptor(actionArgs, defaultArguments);
+      interceptor = new CounterInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(AvgTimingInterceptorMs.NAME)) {
-      interceptor = new AvgTimingInterceptorMs(actionArgs, defaultArguments);
+      interceptor = new AvgTimingInterceptorMs(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(TraceLoginConfigInterceptor.NAME)) {
-      interceptor = new TraceLoginConfigInterceptor(actionArgs, defaultArguments);
+      interceptor = new TraceLoginConfigInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(TraceArgsWithMethodCallInterceptor.NAME)) {
-      interceptor = new TraceArgsWithMethodCallInterceptor(actionArgs, defaultArguments);
+      interceptor = new TraceArgsWithMethodCallInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(DiagnosticCommandInterceptor.NAME)) {
-      interceptor = new DiagnosticCommandInterceptor(actionArgs, defaultArguments);
+      interceptor = new DiagnosticCommandInterceptor(globalArguments, actionArgs, defaultArguments);
     } else if (actionId.equals(HeapDumpCommandInterceptor.NAME)) {
-      interceptor = new HeapDumpCommandInterceptor(actionArgs, defaultArguments);
+      interceptor = new HeapDumpCommandInterceptor(globalArguments, actionArgs, defaultArguments);
     } else {
       System.err.println("TraceAgent detected an invalid action: " + actionId);
       interceptor = null;

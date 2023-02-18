@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -29,10 +30,13 @@ public class TraceArgsInterceptor {
 
   private final long logThresholdMs;
 
-  public TraceArgsInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public TraceArgsInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -43,7 +47,7 @@ public class TraceArgsInterceptor {
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
       if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
-        System.out.println(commonActionArgs.addPrefix("TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments)));
+        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments)));
       }
     }
   }

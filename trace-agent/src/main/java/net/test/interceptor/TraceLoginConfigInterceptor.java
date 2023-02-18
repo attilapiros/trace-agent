@@ -8,6 +8,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
@@ -29,10 +30,13 @@ public class TraceLoginConfigInterceptor {
 
   private final String entryName;
 
-  public TraceLoginConfigInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public TraceLoginConfigInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.entryName = parsed.get(ENTRY_NAME);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -52,7 +56,9 @@ public class TraceLoginConfigInterceptor {
     if (entries.isEmpty()) {
       entries = "Not Found";
     }
-    System.out.println(commonActionArgs.addPrefix("TraceAgent (trace_login_config): `" + method + " login config for entry \"" + entryName + "\"\n" + entries));
+    globalArguments
+        .getTargetStream()
+        .println(commonActionArgs.addPrefix("TraceAgent (trace_login_config): `" + method + " login config for entry \"" + entryName + "\"\n" + entries));
     return callable.call();
   }
 }

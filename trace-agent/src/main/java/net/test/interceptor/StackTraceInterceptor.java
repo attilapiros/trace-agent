@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -48,11 +49,14 @@ public class StackTraceInterceptor {
 
   private volatile int count = 0;
 
-  public StackTraceInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public StackTraceInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
     this.limitCount = parsed.parseInt(LIMIT_COUNT, -1);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -78,7 +82,7 @@ public class StackTraceInterceptor {
           Exception e = new MyException(commonActionArgs.addPrefix("TraceAgent (stack trace)"));
           StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
           e.setStackTrace(Arrays.copyOfRange(stElements, 2, stElements.length));
-          e.printStackTrace(System.out);
+          e.printStackTrace(globalArguments.getTargetStream());
         }
       }
     }

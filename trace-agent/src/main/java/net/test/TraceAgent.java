@@ -21,11 +21,12 @@ public class TraceAgent {
 
   private TraceAction readAction(String line) {
     String[] actionWithArgs = line.split("\\s+");
+    final GlobalArguments globalArgs = new GlobalArguments(traceAgentArgs.getTargetStream());
     final TraceAction traceAction;
     if (actionWithArgs.length == 4) {
-      traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
+      traceAction = new TraceAction(globalArgs, actionWithArgs[0], actionWithArgs[1], actionWithArgs[2], actionWithArgs[3]);
     } else if (actionWithArgs.length == 3) {
-      traceAction = new TraceAction(actionWithArgs[0], actionWithArgs[1], actionWithArgs[2]);
+      traceAction = new TraceAction(globalArgs, actionWithArgs[0], actionWithArgs[1], actionWithArgs[2]);
     } else {
       traceAction = null;
     }

@@ -8,6 +8,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -30,11 +31,14 @@ public class TraceArgsWithMethodCallInterceptor {
 
   private final String methodToCallName;
 
-  public TraceArgsWithMethodCallInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public TraceArgsWithMethodCallInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.paramIndex = parsed.parseInt(PARAM_INDEX, 0);
     this.methodToCallName = parsed.get(METHOD_TO_CALL);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -50,16 +54,18 @@ public class TraceArgsWithMethodCallInterceptor {
     } else {
       retVal = "Parameter tried to be get with index " + paramIndex + " but max index is " + (allArguments.length - 1);
     }
-    System.out.println(
-        commonActionArgs.addPrefix(
-            "TraceAgent (trace_args_with_method_call): "
-                + method
-                + " parameter instance with index "
-                + paramIndex
-                + " method call \""
-                + methodToCallName
-                + "\" returns with \n"
-                + retVal));
+    globalArguments
+        .getTargetStream()
+        .println(
+            commonActionArgs.addPrefix(
+                "TraceAgent (trace_args_with_method_call): "
+                    + method
+                    + " parameter instance with index "
+                    + paramIndex
+                    + " method call \""
+                    + methodToCallName
+                    + "\" returns with \n"
+                    + retVal));
     return callable.call();
   }
 }

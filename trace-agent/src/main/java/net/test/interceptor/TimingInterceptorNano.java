@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -28,10 +29,13 @@ public class TimingInterceptorNano {
 
   private final long logThresholdNano;
 
-  public TimingInterceptorNano(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public TimingInterceptorNano(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdNano = parsed.parseLong(LOG_THRESHOLD_NANO, 0);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -42,7 +46,7 @@ public class TimingInterceptorNano {
     } finally {
       long end = System.nanoTime();
       if (this.logThresholdNano == 0 || end - start >= this.logThresholdNano) {
-        System.out.println(commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " nano"));
+        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " nano"));
       }
     }
   }

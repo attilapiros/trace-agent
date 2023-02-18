@@ -232,6 +232,15 @@ In this case all the rules are used from both the internal and external action f
 In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
 Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
 
+#### Select the target output stream: stderr/stdout
+
+By default TraceAgent traces to the `stdout` but `stderr` can be selected by passing `targetStream:stderr` to the agent:
+
+```
+java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="targetStream:stderr" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
+```
+
+
 #### Enable agent logging
 
 To troubleshoot the process of class transformation and instrumentation verbose logging on
@@ -585,6 +594,14 @@ When the submit process itself need to be traced then in the `SPARK_SUBMIT_OPTS`
 
 ```
 export SPARK_SUBMIT_OPTS="-javaagent:trace-agent-0.0.8.jar"
+```
+
+## YARN AM
+
+When the YARN resource allocation is need to be traced at client mode the `spark.yarn.am.extraJavaOptions` must be used:
+
+```
+--conf spark.yarn.am.extraJavaOptions="-javaagent:trace-agent-0.0.8.jar" --jars trace-agent-0.0.8.jar
 ```
 
 ## Spark driver client mode

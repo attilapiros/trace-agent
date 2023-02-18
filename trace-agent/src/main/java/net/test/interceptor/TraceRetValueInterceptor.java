@@ -26,10 +26,13 @@ public class TraceRetValueInterceptor {
 
   private final long logThresholdMs;
 
-  public TraceRetValueInterceptor(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public TraceRetValueInterceptor(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -48,7 +51,7 @@ public class TraceRetValueInterceptor {
       } else {
         retValStr = "null";
       }
-      System.out.println(commonActionArgs.addPrefix("TraceAgent (trace_retval): `" + method + " returns with " + retValStr));
+      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_retval): `" + method + " returns with " + retValStr));
     }
     return retVal;
   }

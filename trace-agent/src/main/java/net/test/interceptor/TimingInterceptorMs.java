@@ -4,6 +4,7 @@ import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
+import net.test.GlobalArguments;
 
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -27,10 +28,13 @@ public class TimingInterceptorMs {
 
   private final long logThresholdMs;
 
-  public TimingInterceptorMs(String actionArgs, DefaultArguments defaults) {
+  private final GlobalArguments globalArguments;
+
+  public TimingInterceptorMs(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
     this.commonActionArgs = new CommonActionArgs(parsed, defaults);
     this.logThresholdMs = parsed.parseLong(LOG_THRESHOLD_MILLISECONDS, 0);
+    this.globalArguments = globalArguments;
   }
 
   @RuntimeType
@@ -41,7 +45,7 @@ public class TimingInterceptorMs {
     } finally {
       long end = System.currentTimeMillis();
       if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
-        System.out.println(commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " ms"));
+        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (timing): `" + method + "` took " + (end - start) + " ms"));
       }
     }
   }
