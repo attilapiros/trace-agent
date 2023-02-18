@@ -42,12 +42,16 @@ public class TraceArgsInterceptor {
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
+    if (this.logThresholdMs == 0) {
+      // without logThreshold we can log before the method body so the log lines can keep the ordering of method calls
+      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args pre): `" + method + " called with " + Arrays.toString(allArguments)));
+    }
     try {
       return callable.call();
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
-      if (this.logThresholdMs == 0 || end - start >= this.logThresholdMs) {
-        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args): `" + method + " called with " + Arrays.toString(allArguments)));
+      if (this.logThresholdMs != 0 && end - start >= this.logThresholdMs) {
+        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args post): `" + method + " called with " + Arrays.toString(allArguments)));
       }
     }
   }

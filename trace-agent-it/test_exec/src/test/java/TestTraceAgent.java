@@ -79,7 +79,9 @@ public class TestTraceAgent {
     String output = runTraceAgent("trace_args net.test.TestClass2nd methodWithArgs");
     Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
     assertTrue(
-        streamSupplier.get().anyMatch(s -> s.contains("TraceAgent (trace_args): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]")));
+        streamSupplier
+            .get()
+            .anyMatch(s -> s.contains("TraceAgent (trace_args pre): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]")));
   }
 
   @Test
