@@ -2,6 +2,9 @@ package net.test;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.utility.JavaModule;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -10,6 +13,7 @@ import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +92,14 @@ public class TraceAgent {
         }
         agentBuilder
             .type(action.getClassMatcher())
-            .transform((builder, type, classLoader, module) -> builder.method(action.getMethodMatcher()).intercept(MethodDelegation.to(interceptor)))
+            .transform(
+                new AgentBuilder.Transformer() {
+                  @Override
+                  public DynamicType.Builder transform(
+                      DynamicType.Builder builder, TypeDescription typeDescription, ClassLoader classloader, JavaModule module, ProtectionDomain protectionDomain) {
+                    return builder.method(action.getMethodMatcher()).intercept(MethodDelegation.to(interceptor));
+                  }
+                })
             .installOn(instrumentation);
       }
     }
