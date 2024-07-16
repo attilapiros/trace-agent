@@ -95,16 +95,16 @@ public class TestTraceAgent {
   public void testElapsedTime() throws IOException {
     String output = runTraceAgent("elapsed_time_in_nano net.test.TestClass test", "elapsed_time_in_ms net.test.TestClass2nd anotherMethod");
     Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
-    assertTrue(streamSupplier.get().anyMatch(s -> s.matches("TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ nano")));
-    assertTrue(streamSupplier.get().anyMatch(s -> s.matches("TraceAgent \\(timing\\): `public void net.test.TestClass2nd.anotherMethod\\(\\)` took [0-9]+ ms")));
+    assertTrue(streamSupplier.get().anyMatch(s -> s.trim().matches("TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ nano")));
+    assertTrue(streamSupplier.get().anyMatch(s -> s.trim().matches("TraceAgent \\(timing\\): `public void net.test.TestClass2nd.anotherMethod\\(\\)` took [0-9]+ ms")));
   }
 
   @Test
   public void testMultipleActionsOnTheSameMethod() throws IOException {
     String output = runTraceAgent("elapsed_time_in_nano net.test.TestClass test", "elapsed_time_in_ms net.test.TestClass test");
     Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
-    assertTrue(streamSupplier.get().anyMatch(s -> s.matches("TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ nano")));
-    assertTrue(streamSupplier.get().anyMatch(s -> s.matches("TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ ms")));
+    assertTrue(streamSupplier.get().anyMatch(s -> s.trim().matches("TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ nano")));
+    assertTrue(streamSupplier.get().anyMatch(s -> s.trim().matches("TraceAgent \\(timing\\): `public void net.test.TestClass.test\\(\\)` took [0-9]+ ms")));
   }
 
   @Test
