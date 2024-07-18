@@ -20,11 +20,15 @@ public class TraceAgentArgs implements DefaultArguments {
 
   private final Boolean isDateLoggedFlag;
 
+  private final Boolean isThreadNameLoggedFlag;
+
   private final PrintStream targetStream;
 
   public TraceAgentArgs(String arguments) {
     Map<String, String> parsedArgs =
-        ArgUtils.parseOptionalArgs(Arrays.asList(EXTERNAL_ACTION_FILE_PATH, ENABLE_AGENT_LOG, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED, TARGET_STREAM), arguments);
+        ArgUtils.parseOptionalArgs(
+            Arrays.asList(EXTERNAL_ACTION_FILE_PATH, ENABLE_AGENT_LOG, DATE_TIME_FORMAT, CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.IS_THREADNAME_LOGGED, TARGET_STREAM),
+            arguments);
     this.externalActionFilePath = parsedArgs.get(EXTERNAL_ACTION_FILE_PATH);
     if (parsedArgs.getOrDefault(TARGET_STREAM, "stdout").equals("stderr")) {
       this.targetStream = System.err;
@@ -42,6 +46,7 @@ public class TraceAgentArgs implements DefaultArguments {
 
     // parse the common arguments
     this.isDateLoggedFlag = Boolean.valueOf(parsedArgs.get(CommonActionArgs.IS_DATE_LOGGED));
+    this.isThreadNameLoggedFlag = Boolean.valueOf(parsedArgs.get(CommonActionArgs.IS_THREADNAME_LOGGED));
   }
 
   public String getExternalActionFilePath() {
@@ -58,6 +63,10 @@ public class TraceAgentArgs implements DefaultArguments {
 
   public boolean isDateLogged() {
     return this.isDateLoggedFlag;
+  }
+
+  public boolean isThreadNameLogged() {
+    return this.isThreadNameLoggedFlag;
   }
 
   public PrintStream getTargetStream() {

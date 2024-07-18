@@ -27,7 +27,18 @@ public class TestTraceAgent {
               + "\" "
               + "-jar ../sampleApp/target/sampleApp-1.0-SNAPSHOT.jar");
 
+  private static CommandLine cmdWithThreadNameArgs =
+      CommandLine.parse(
+          "java -XX:NativeMemoryTracking=detail -javaagent:../../trace-agent/target/trace-agent-1.0-SNAPSHOT.jar=\"isThreadnameLogged:true,actionsFile:./"
+              + ACTION_FILE_NAME
+              + "\" "
+              + "-jar ../sampleApp/target/sampleApp-1.0-SNAPSHOT.jar");
+
   private String runTraceAgent(String... actions) throws IOException {
+    return runTraceAgent(false, actions);
+  }
+
+  private String runTraceAgent(boolean isThreadNameLogged, String... actions) throws IOException {
     String res = "";
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       DefaultExecutor executor = new DefaultExecutor();
@@ -38,7 +49,11 @@ public class TestTraceAgent {
           actionWriter.append(a + "\n");
         }
         actionWriter.close();
-        executor.execute(cmd);
+        if (isThreadNameLogged) {
+          executor.execute(cmdWithThreadNameArgs);
+        } else {
+          executor.execute(cmd);
+        }
       } finally {
         actionFile.delete();
       }
@@ -163,5 +178,25 @@ public class TestTraceAgent {
     assertTrue(
         streamSupplier.get().anyMatch(s -> s.equals("TraceAgent (diagnostic_command / vmNativeMemory): at the beginning of `public void net.test.TestClass2nd.anotherMethod()`:")));
     assertTrue(streamSupplier.get().anyMatch(s -> s.equals("Native Memory Tracking:")));
+  }
+
+  @Test
+  public void testTraceArgsWithThreadNameAsJVMArg() throws IOException {
+    String output = runTraceAgent(true, "trace_args net.test.TestClass2nd methodWithArgs");
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(s -> s.contains("[main] TraceAgent (trace_args pre): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]")));
+  }
+
+  @Test
+  public void testTraceArgsWithThreadNameAsActionArg() throws IOException {
+    String output = runTraceAgent("trace_args net.test.TestClass2nd methodWithArgs isThreadnameLogged:true");
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(s -> s.contains("[main] TraceAgent (trace_args pre): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]")));
   }
 }

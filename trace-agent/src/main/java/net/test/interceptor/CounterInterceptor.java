@@ -24,7 +24,7 @@ public class CounterInterceptor {
 
   private static String COUNT_FREQUENCY = "count_frequency";
 
-  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COUNT_FREQUENCY);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.IS_THREADNAME_LOGGED, COUNT_FREQUENCY);
 
   private CommonActionArgs commonActionArgs;
 

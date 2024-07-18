@@ -23,7 +23,7 @@ public class TraceArgsWithMethodCallInterceptor {
 
   private static String METHOD_TO_CALL = "method_to_call";
 
-  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, PARAM_INDEX, METHOD_TO_CALL);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.IS_THREADNAME_LOGGED, PARAM_INDEX, METHOD_TO_CALL);
 
   private CommonActionArgs commonActionArgs;
 
