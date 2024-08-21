@@ -24,7 +24,7 @@ public class TraceLoginConfigInterceptor {
 
   private static String ENTRY_NAME = "entry_name";
 
-  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, ENTRY_NAME);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.IS_THREADNAME_LOGGED, ENTRY_NAME);
 
   private CommonActionArgs commonActionArgs;
 

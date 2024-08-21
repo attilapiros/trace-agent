@@ -193,6 +193,22 @@ Tue Jun 23 12:39:25 CEST 2020
 2020-06-23T12:39:25.875 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
+### Example for common argument (both global and action argument): `isThreadnameLogged`
+The `isThreadnameLogged` can be used to request the current thread name to be contained as prefix in the actions logs.
+This is especially useful in multithreaded applications.
+This is false by default but via setting it globally this default can be changed:
+
+```
+$  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true,isThreadnameLogged:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
+Hello World!
+2020-06-23T12:34:27.746 [main] TraceAgent (timing): `public void net.test.TestClass.test()` took 101212548 nano
+...
+```
+The `isThreadnameLogged` can be enabled on action level too if needed:
+
+```
+elapsed_time_in_nano net.test.TestClass test isThreadnameLogged:true
+```
 ### Trace agent global only parameters
 
 There are parameters which configures the trace agent globally.
@@ -527,6 +543,7 @@ Heapdump file names follows the following patttern:
 * `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
 * `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME).
   For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+* `isThreadnameLogged` (scope: both `global` and `action`) The `isThreadnameLogged` can be used to request the current thread name to be contained as prefix in the actions logs.
 * `log_threshold_ms` (scope: multiple actions) This threshold represents the elapsed number of milliseconds after there will be a printout. The default is `0`, which means it should printout on every call. For example, if we only like to log an action when it takes more than 1 second to complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
 * `log_threshold_nano` (scope: only for `elapsed_time_in_nano`) Similar to `log_threshold_ms` but in nanoseconds.
 * `limit_count` (scope: only for `stack_trace`) Trace only the first `limit_count` number of calls. This limit is turned off by default by set it to -1.
@@ -544,17 +561,17 @@ All actions have the following set of arguments
 
 Here is the full list of actions and supported `params`
 
-| Action                      | Supported arguments                           |
-| --------------------------- | --------------------------------------------- |
-| elapsed_time_in_nano        | isDateLogged, log_threshold_nano              |
-| elapsed_time_in_ms          | isDateLogged, log_threshold_ms                |
-| stack_trace                 | isDateLogged, log_threshold_ms, limit_count   |
-| trace_args                  | isDateLogged, log_threshold_ms                |
-| trace_retval                | isDateLogged, log_threshold_ms                |
-| trace_args_with_method_call | isDateLogged, param_index, method_to_call     |
-| counter                     | isDateLogged, count_frequency                 |
-| avg_timing                  | isDateLogged, window_length                   |
-| trace_login_config          | isDateLogged, entry_name                      |
+| Action                      | Supported arguments                                   |
+| --------------------------- |-------------------------------------------------------|
+| elapsed_time_in_nano        | isDateLogged, isThreadnameLogged, log_threshold_nano |
+| elapsed_time_in_ms          | isDateLogged, isThreadnameLogged, log_threshold_ms                        |
+| stack_trace                 | isDateLogged, isThreadnameLogged, log_threshold_ms, limit_count           |
+| trace_args                  | isDateLogged, isThreadnameLogged, log_threshold_ms                        |
+| trace_retval                | isDateLogged, isThreadnameLogged, log_threshold_ms                        |
+| trace_args_with_method_call | isDateLogged, isThreadnameLogged, param_index, method_to_call             |
+| counter                     | isDateLogged, isThreadnameLogged, count_frequency                         |
+| avg_timing                  | isDateLogged, isThreadnameLogged, window_length                           |
+| trace_login_config          | isDateLogged, isThreadnameLogged, entry_name                              |
 
 
 # Some complex examples how to specify a javaagent
