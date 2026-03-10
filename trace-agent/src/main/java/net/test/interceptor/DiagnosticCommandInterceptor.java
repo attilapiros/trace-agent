@@ -44,7 +44,7 @@ public class DiagnosticCommandInterceptor {
 
   private static String LIMIT_OUTPUT_LINES = "limit_output_lines";
 
-  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE, WITH_GC);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.IS_THREADNAME_LOGGED, COMMAND, LIMIT_OUTPUT_LINES, WHERE, WITH_GC);
 
   private CommonActionArgs commonActionArgs;
 

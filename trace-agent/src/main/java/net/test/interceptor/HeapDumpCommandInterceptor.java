@@ -42,7 +42,7 @@ public class HeapDumpCommandInterceptor {
 
   private static String LIVE_OBJECTS = "live_objects";
 
-  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, WHERE, LIVE_OBJECTS);
+  private static List<String> KNOWN_ARGS = Arrays.asList(CommonActionArgs.IS_DATE_LOGGED, CommonActionArgs.IS_THREADNAME_LOGGED, WHERE, LIVE_OBJECTS);
 
   private CommonActionArgs commonActionArgs;
 
