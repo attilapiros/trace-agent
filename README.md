@@ -1,8 +1,9 @@
 # Trace Agent
 
-Trace Agent is a Java agent configurable by a simple text file to trace Java methods without any rebuild.
-Its config file called `actions.txt` can be provided as an external resource or can be embedded within the agent jar
-this way in a distributed environment just the agent jar should be added to the classpath of the different components.
+Trace Agent is a Java agent configurable by a simple text file to trace Java methods without any
+rebuild. Its config file called `actions.txt` can be provided as an external resource or can be
+embedded within the agent jar this way in a distributed environment just the agent jar should be
+added to the classpath of the different components.
 
 
 # An example
@@ -11,7 +12,8 @@ It is much easier to understand how this tool can be used if I show you it throu
 
 ## The project we would like to trace
 
-Let's say we have a project what we would like analyze. Let's take a very simple Java application as an example:
+Let's say we have a project that we would like to analyze. Let's take a very simple Java application
+as an example:
 
 ```java
 
@@ -67,13 +69,14 @@ methodWithArgs
 ## Let's trace it
 
 If we would like to:
-- measure the elapsed time of the `test` method in nanosecond
+- measure the elapsed time of the `test` method in nanoseconds
 - see the call stack at the beginning of `anotherMethod`
 - and measure the elapsed time in milliseconds also within the `anotherMethod`
-- the trace the actual argument values used for calling the method `methodWithArgs`
-- the trace the return value of the method `methodWithArgs` call
+- trace the actual argument values used for calling the method `methodWithArgs`
+- trace the return value of the method `methodWithArgs` call
 
-without touching the testartifact then we could set up the `actions.txt` (the config of the trace agent) like this:
+without touching the testartifact then we could set up the `actions.txt` (the config of the trace
+agent) like this:
 
 ```
 elapsed_time_in_nano net.test.TestClass test
@@ -83,7 +86,8 @@ trace_args net.test.TestClass2nd methodWithArgs
 trace_retval net.test.TestClass2nd methodWithArgs
 ```
 
-This `actions.txt` is part of the trace agent jar as a resource (no recompile/rebuild is needed just edit the file within the jar).
+This `actions.txt` is part of the trace agent jar as a resource (no recompile/rebuild is needed just
+edit the file within the jar).
 
 And to start the trace one could use:
 
@@ -116,7 +120,7 @@ Empty lines and lines starting with `#` (comments) are skipped.
 ## Using regular expressions for matching to class and method names
 
 When the class name or the method is given in the format of `REGEXP(<pattern>)` then
-[java regular expression](https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html#sum) is used for matching.
+[java regular expression][java-regex] is used for matching.
 
 Example `actions.txt` to match for every methods of the classes within the package `net.test`:
 
@@ -138,18 +142,21 @@ TraceAgent (timing): `public static void net.test.App.main(java.lang.String[])` 
 
 ## Parameterization
 
-The trace agent can be parameterised with key-value pairs in the format of `<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>:<value_N>`.
-The parameters can be given globally or for each rule separately. Using a common format at both places makes the parsing reusable.
+The trace agent can be parameterised with key-value pairs in the format of
+`<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>:<value_N>`.
+The parameters can be given globally or for each rule separately. Using a common format at both
+places makes the parsing reusable.
 
-Disclaimer: currently parsing is done via simply splitting the strings so commas (,) and colons (:) cannot be used in the values
-(if there is a need then escaping should be introduced in the future).
+Disclaimer: currently parsing is done via simply splitting the strings so commas (,) and colons (:)
+cannot be used in the values (if there is a need then escaping should be introduced in the future).
 
-Not all the parameters can be used at both places. And there will be parameters which make sense only for one specific action only (or for a set of actions).
+Not all the parameters can be used at both places. And there will be parameters which make sense
+only for one specific action only (or for a set of actions).
 
 ### Example for common argument (both global and action argument): `isDateLogged`
 
-The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
-This is false by default but via setting it globally this default can be changed:
+The `isDateLogged` can be used to request the current date time to be contained as prefix in the
+actions logs. This is false by default but via setting it globally this default can be changed:
 
 ```
 $  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
@@ -166,7 +173,8 @@ Tue Jun 23 12:34:27 CEST 2020
 2020-06-23T12:34:27.915 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
-Now if you would like to save date time formatting for `elapsed_time_in_nano` you can set the `isDateLogged` to false for that rule:
+Now if you would like to save date time formatting for `elapsed_time_in_nano` you can set the
+`isDateLogged` to false for that rule:
 
 ```
 elapsed_time_in_nano net.test.TestClass test isDateLogged:false
@@ -176,7 +184,8 @@ trace_args net.test.TestClass2nd methodWithArgs
 trace_retval net.test.TestClass2nd methodWithArgs
 ```
 
-And when the experiment reexecuted the date time is not logged for nanosecond measure but for other rules:
+And when the experiment reexecuted the date time is not logged for nanosecond measure but for other
+rules:
 
 ```
 $  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
@@ -202,9 +211,9 @@ There are parameters which configures the trace agent globally.
 The `dateTimeFormat` can be used to specify the formatting for date times:
 
 ```
-$  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true,dateTimeFormat:YYYY-MM-dd'T'hh:mm" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar                            134 ↵
+$  java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="isDateLogged:true,dateTimeFormat:YYYY-MM-dd'T'hh:mm" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
 Hello World!
-TraceAgent (timing): `public void net.test.TestClass.test()` took 100606015 nano
+2020-06-23T12:50 TraceAgent (timing): `public void net.test.TestClass.test()` took 100606015 nano
 2020-06-23T12:50 TraceAgent (stack trace)
 	at net.test.TestClass2nd.anotherMethod(App.java)
 	at net.test.App.main(App.java:9)
@@ -216,25 +225,29 @@ Tue Jun 23 12:50:33 CEST 2020
 2020-06-23T12:50 TraceAgent (trace_retval): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) returns with 12
 ```
 
-The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME).
-For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+The default is [ISO_LOCAL_DATE_TIME][iso-local-date-time].
+For the details and valid patterns please check: [DateTimeFormatter][date-time-formatter].
 
 #### The external actions file
 
-It is possible to specify an external actions file. For example if the actions file in the current directory:
+It is possible to specify an external actions file. For example if the actions file in the current
+directory:
 
 ```
 java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="actionsFile:./actions.txt" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
 ```
 
-In this case all the rules are used from both the internal and external action files: like the two list would be merged together.
+In this case all the rules are used from both the internal and external action files: like the two
+list would be merged together.
 
-In distributed environment when external action file is used you should take care on each node the action file is really can be accessed using the path.
-Otherwise the error is logged but the application continues: "TraceAgent does not find the external action file: <file>".
+In a distributed environment when an external action file is used you should ensure the action file
+is accessible on each node using the given path. Otherwise the error is logged but the application
+continues: "TraceAgent does not find the external action file: <file>".
 
 #### Select the target output stream: stderr/stdout
 
-By default TraceAgent traces to the `stdout` but `stderr` can be selected by passing `targetStream:stderr` to the agent:
+By default TraceAgent traces to the `stdout` but `stderr` can be selected by passing
+`targetStream:stderr` to the agent:
 
 ```
 java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="targetStream:stderr" -jar ../testartifact/target/testartifact-1.0-SNAPSHOT.jar
@@ -244,9 +257,11 @@ java -javaagent:target/trace-agent-1.0-SNAPSHOT.jar="targetStream:stderr" -jar .
 #### Enable agent logging
 
 To troubleshoot the process of class transformation and instrumentation verbose logging on
-the steps executed by the javaagent can be enabled with the `enableAgentLog` flag (if unspecified, its default value is `false`).
+the steps executed by the javaagent can be enabled with the `enableAgentLog` flag (if unspecified,
+its default value is `false`).
 
-The structure of the logging output is dependent on the instrumentation library used (currently ByteBuddy's internal format), and is subject to change.
+The structure of the logging output is dependent on the instrumentation library used (currently
+ByteBuddy's internal format), and is subject to change.
 
 The agent log will be written to the stdout.
 
@@ -276,7 +291,8 @@ TraceAgent installed actions successfully
 
 ## The counter action
 
-This action can be used to count the number of of method calls. It has one parameter `count_frequency` which specifies after how many calls there will be a printout.
+This action can be used to count the number of method calls. It has one parameter `count_frequency`
+which specifies after how many calls there will be a printout.
 Its output will be printed before the targeted method body is executed.
 
 Example:
@@ -299,9 +315,11 @@ TraceAgent (counter): 28
 
 ## The avg_timing action
 
-This action creates statistics from the method runtimes based on a specified number of method calls (called `window_length` which is 100 by default).
+This action creates statistics from the method runtimes based on a specified number of method calls
+(called `window_length` which is 100 by default).
 
-It traces out the min, average and max ellapsed times in **milliseconds** when the number of calls are reached the `window_length` then it starts a new window.
+It traces out the min, average and max elapsed times in **milliseconds** when the number of calls
+are reached the `window_length` then it starts a new window.
 
 Example:
 
@@ -315,7 +333,8 @@ Example output:
 TraceAgent (avg_timing): `public void net.test.TestClass2nd.calledSeveralTimes()` window_length: 5 min: 102 avg: 103 max: 105
 ```
 
-**Important: if it is used with REGEXP then it traces at the method where `window_lenth` reached but it contains the elapsed times of all the matching methods!**
+**Important: if it is used with REGEXP then it traces at the method where `window_length` reached
+but it contains the elapsed times of all the matching methods!**
 
 ## The trace_login_config action
 
@@ -347,7 +366,7 @@ KafkaClient {
 
 The action expects 2 parameters and calls a method on an argument instance:
 * `param_index` This is the index of the argument instance.
-* `method_to_call` This the the method which is called on the argument instance. Please note,
+* `method_to_call` This is the method which is called on the argument instance. Please note,
 only public member methods without any parameters can be used. The internal implementation uses
 reflection so it can be used in situations where the number of calls is low.
 
@@ -371,14 +390,21 @@ Generic as via this action any parameterless diagnostic command can be executed.
 
 Possible action args:
 
-* `cmd`: The diagnostic command to run. For example `vmNativeMemory`, `gcClassHistogram`, `threadPrint`...
+* `cmd`: The diagnostic command to run. For example `vmNativeMemory`, `gcClassHistogram`,
+  `threadPrint`...
 * `limit_output_lines`: The number of lines which should be printed from the command output.
-                        It is very usefull in case of the class histogram where classes taking the most memory are listed at the top.
-* `where`: The position where the command should be called relative to the instrumented method. It is one of `before` (default), `after` and `beforeAndAfter`.
+  It is very useful in case of the class histogram where classes taking the most memory are listed
+  at the top.
+* `where`: The position where the command should be called relative to the instrumented method. It
+  is one of `before` (default), `after` and `beforeAndAfter`.
+* `with_gc`: If `true`, a GC is forced right before the diagnostic command is invoked (default
+  `false`). This is most useful with `cmd:gcClassHistogram` and `where:beforeAndAfter` so the
+  reported histogram reflects live objects only.
 
 ### The diagnostic_command / gcClassHistogram subaction
 
-This can be used to identify memory leaks and this is where `beforeAndAfter` could be very useful if the method should cleanup after itself.
+This can be used to identify memory leaks and this is where `beforeAndAfter` could be very useful
+if the method should cleanup after itself.
 
 Example `actions.txt`:
 
@@ -411,7 +437,7 @@ methodWithArgs
 
 ### The diagnostic_command / threadPrint subaction
 
-This can be used to print out thee running thread when the execution reaches a method.
+This can be used to print out the running threads when the execution reaches a method.
 
 Example `actions.txt`:
 
@@ -444,7 +470,7 @@ Full thread dump OpenJDK 64-Bit Server VM (25.292-b10 mixed mode):
 
 ### The diagnostic_command / vmNativeMemory subaction
 
-Prerequisite: the Native Memory Tracking (NMT) must be enabled fot the application which is traced.
+Prerequisite: the Native Memory Tracking (NMT) must be enabled for the application which is traced.
 To enable NMT the app must be started with one of the following JVM argument:
 
 - `-XX:NativeMemoryTracking=summary`
@@ -513,10 +539,12 @@ This action can be used to request a heap dump.
 
 Possible action args:
 
-* `where`: The position where the command should be called relative to the instrumented method. It is one of `before` (default), `after` and `beforeAndAfter`.
-* `live_objects`: If `true` (default) dump only live objects i.e. objects that are reachable from others.
+* `where`: The position where the command should be called relative to the instrumented method. It
+  is one of `before` (default), `after` and `beforeAndAfter`.
+* `live_objects`: If `true` (default) dump only live objects i.e. objects that are reachable from
+  others.
 
-Heapdump file names follows the following patttern:
+Heapdump file names follow the following pattern:
 
 ```
 {requestedMethodName}_{globalNumericIndex}_[before|after]_[onlyLiveObjects|includingUnreachableObjects].hprof
@@ -524,13 +552,21 @@ Heapdump file names follows the following patttern:
 
 # Summary of Parameters
 
-* `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the current date time to be contained as prefix in the actions logs.
-* `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is [ISO_LOCAL_DATE_TIME](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME).
-  For the details and valid patterns please check: [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
-* `log_threshold_ms` (scope: multiple actions) This threshold represents the elapsed number of milliseconds after there will be a printout. The default is `0`, which means it should printout on every call. For example, if we only like to log an action when it takes more than 1 second to complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
-* `log_threshold_nano` (scope: only for `elapsed_time_in_nano`) Similar to `log_threshold_ms` but in nanoseconds.
-* `limit_count` (scope: only for `stack_trace`) Trace only the first `limit_count` number of calls. This limit is turned off by default by set it to -1.
-* `window_length` scope `avg_timing`
+* `isDateLogged` (scope: both `global` and `action`) The `isDateLogged` can be used to request the
+  current date time to be contained as prefix in the actions logs.
+* `dateTimeFormat` (scope: `global`) Can be used to specify formatting for datetimes. The default is
+  [ISO_LOCAL_DATE_TIME][iso-local-date-time].
+  For the details and valid patterns please check: [DateTimeFormatter][date-time-formatter].
+* `log_threshold_ms` (scope: multiple actions) This threshold represents the elapsed number of
+  milliseconds after there will be a printout. The default is `0`, which means it should printout on
+  every call. For example, if we only like to log an action when it takes more than 1 second to
+  complete: `elapsed_time_in_ms net.test.TestClass test log_threshold_ms:1000`
+* `log_threshold_nano` (scope: only for `elapsed_time_in_nano`) Similar to `log_threshold_ms` but in
+  nanoseconds.
+* `limit_count` (scope: only for `stack_trace`) Trace only the first `limit_count` number of calls.
+  This limit is turned off by default; set it to `-1` to disable it explicitly.
+* `window_length` (scope: only for `avg_timing`) The number of calls per window (default `100`) over
+  which `avg_timing` computes min/avg/max elapsed times in milliseconds.
 
 ## Actions and supported parameters
 
@@ -538,9 +574,10 @@ All actions have the following set of arguments
 
 * `class-name`: **Required** name for the class to be traced
 
-* `action-name`: **Required** name of method to be traced
+* `method-name`: **Required** name of method to be traced
 
-* `params`: Optional list of parameters in form of `<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>`<br>
+* `params`: Optional list of parameters in form of
+  `<key_1>:<value_1>,<key_2>:<value_2>,...<key_N>:<value_N>`<br>
 
 Here is the full list of actions and supported `params`
 
@@ -555,24 +592,28 @@ Here is the full list of actions and supported `params`
 | counter                     | isDateLogged, count_frequency                 |
 | avg_timing                  | isDateLogged, window_length                   |
 | trace_login_config          | isDateLogged, entry_name                      |
+| diagnostic_command          | isDateLogged, cmd, limit_output_lines, where, with_gc |
+| heap_dump                   | isDateLogged, where, live_objects             |
 
 
 # Some complex examples how to specify a javaagent
 
-Although trace agent is a general tool I would like to write up some use cases where this tool can be useful for you
-(and also for myself for future reference).
+Although trace agent is a general tool I would like to write up some use cases where this tool can
+be useful for you (and also for myself for future reference).
 
 ## For JVM based languages other than Java (Scala, Clojure, Kotlin, ...)
 
-If you can run an experiment you can use the regexp based matching to find out what pattern you should use exactly.
-When experimenting is not possible then you can use `javap` to find out what will be the final class and method name.
+If you can run an experiment you can use the regexp based matching to find out what pattern you
+should use exactly. When experimenting is not possible then you can use `javap` to find out what
+will be the final class and method name.
 
 ### Example
 
-For example in case of a Spark Core method (which uses Scala) this can be done as follows. Let's say you would like to match for
-[createTaskScheduler](https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/SparkContext.scala#L2757).
-First you should find out the class file. As from a Scala object the compiler generates a class which ends with `$` in our case
-this will be `org.apache.spark.SparkContext$.class` (as the object fully qualified name is `org.apache.spark.SparkContext`).
+For example in case of a Spark Core method (which uses Scala) this can be done as follows. Let's
+say you would like to match for [createTaskScheduler][spark-create-task-scheduler].
+First you should find out the class file. As from a Scala object the compiler generates a class
+which ends with `$` in our case this will be `org.apache.spark.SparkContext$.class` (as the object
+fully qualified name is `org.apache.spark.SparkContext`).
 
 Now with `javap` the exact method name can be find out easily, like:
 
@@ -590,7 +631,8 @@ elapsed_time_in_ms org.apache.spark.SparkContext$ org$apache$spark$SparkContext$
 
 ## Spark submit
 
-When the submit process itself need to be traced then in the `SPARK_SUBMIT_OPTS` environment variable the trace agent have to be given as a java agent:
+When the submit process itself need to be traced then in the `SPARK_SUBMIT_OPTS` environment
+variable the trace agent have to be given as a java agent:
 
 ```
 export SPARK_SUBMIT_OPTS="-javaagent:trace-agent-0.0.8.jar"
@@ -598,7 +640,8 @@ export SPARK_SUBMIT_OPTS="-javaagent:trace-agent-0.0.8.jar"
 
 ## YARN AM
 
-When the YARN resource allocation is need to be traced at client mode the `spark.yarn.am.extraJavaOptions` must be used:
+When the YARN resource allocation is need to be traced at client mode the
+`spark.yarn.am.extraJavaOptions` must be used:
 
 ```
 --conf spark.yarn.am.extraJavaOptions="-javaagent:trace-agent-0.0.8.jar" --jars trace-agent-0.0.8.jar
@@ -606,8 +649,9 @@ When the YARN resource allocation is need to be traced at client mode the `spark
 
 ## Spark driver client mode
 
-In case of client mode when the driver is at node where you call spark-submit at you can simply start Spark with the config
-`spark.driver.extraJavaOptions` where you can specify `-javagent` with the trace-agent jar location:
+In case of client mode when the driver is at node where you call spark-submit at you can simply
+start Spark with the config `spark.driver.extraJavaOptions` where you can specify `-javagent` with
+the trace-agent jar location:
 
 Example (when you are in the same directory where the trace-agent jar is stored):
 
@@ -618,7 +662,8 @@ TraceAgent (timing): `public scala.Tuple2 org.apache.spark.SparkContext$.org$apa
 
 ## Spark driver cluster mode
 
-In case of cluster mode please upload the trace agent jar to HDFS and combine the `spark.jars` and `spark.driver.extraJavaOptions` configuration like this:
+In case of cluster mode please upload the trace agent jar to HDFS and combine the `spark.jars` and
+`spark.driver.extraJavaOptions` configuration like this:
 
 ```
 $ hdfs dfs -put trace-agent-0.0.8.jar /tmp
@@ -633,13 +678,15 @@ TraceAgent (timing): `public scala.Tuple2 org.apache.spark.SparkContext$.org$apa
 
 ## Spark executor
 
-For example if we would like to measure the `onConnected` method of `CoarseGrainedExecutorBackend` then the actions must be:
+For example if we would like to measure the `onConnected` method of `CoarseGrainedExecutorBackend`
+then the actions must be:
 
 ```
 elapsed_time_in_ms org.apache.spark.executor.CoarseGrainedExecutorBackend onConnected
 ```
 
-The jar on the HDFS must be refreshed and the submit should be called with `spark.jars` and `spark.executor.extraJavaOptions` configs, like this:
+The jar on the HDFS must be refreshed and the submit should be called with `spark.jars` and
+`spark.executor.extraJavaOptions` configs, like this:
 
 ```
 $ spark-submit --conf "spark.jars=hdfs:/tmp/trace-agent-0.0.8.jar" --conf "spark.executor.extraJavaOptions=-javaagent:trace-agent-0.0.8.jar"  --class org.apache.spark.examples.SparkPi --deploy-mode cluster --master yarn spark-examples_2.11-2.4.5.jar 100
@@ -677,13 +724,15 @@ TraceAgent (timing): `public void org.apache.spark.executor.CoarseGrainedExecuto
 
 ## Cloudera CDE
 
-Here is how you can use Trace Agent with Cloudera CDE Spark jobs and specify an external `actions.txt` file:
+Here is how you can use Trace Agent with Cloudera CDE Spark jobs and specify an external
+`actions.txt` file:
 
 ```
 cde spark submit spark-examples_2.11-2.4.7.7.2.10.0-120.jar 10 --class org.apache.spark.examples.SparkPi --job-name test-job-1 --tls-insecure --conf "spark.driver.extraJavaOptions=-javaagent:/app/mount/trace-agent-1.0-SNAPSHOT.jar=actionsFile:/app/mount/actions.txt" --jar trace-agent-1.0-SNAPSHOT.jar --file actions.txt
 ```
 
-This method works with executors as well, in which case `spark.executor.extraJavaOptions` needs to be set instead of `spark.driver.extraJavaOptions`.
+This method works with executors as well, in which case `spark.executor.extraJavaOptions` needs to
+be set instead of `spark.driver.extraJavaOptions`.
 
 # Replacing actions directly into the jar
 
@@ -696,3 +745,8 @@ jar uf trace-agent-1.0-SNAPSHOT.jar actions.txt
 
 # done
 ```
+
+[java-regex]: https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html#sum
+[iso-local-date-time]: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME
+[date-time-formatter]: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
+[spark-create-task-scheduler]: https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/SparkContext.scala#L2757
