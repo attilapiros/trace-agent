@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class MyException extends Exception {
 
@@ -47,7 +48,7 @@ public class StackTraceInterceptor {
 
   private final int limitCount;
 
-  private volatile int count = 0;
+  private final AtomicInteger count = new AtomicInteger(0);
 
   private final GlobalArguments globalArguments;
 
@@ -71,11 +72,8 @@ public class StackTraceInterceptor {
         final boolean doPrint;
         if (limitCount == -1) {
           doPrint = true;
-        } else if (count < limitCount) {
-          doPrint = true;
-          count++;
         } else {
-          doPrint = false;
+          doPrint = count.getAndIncrement() < limitCount;
         }
 
         if (doPrint) {

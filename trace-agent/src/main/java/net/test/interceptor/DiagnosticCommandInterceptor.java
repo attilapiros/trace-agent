@@ -103,7 +103,7 @@ public class DiagnosticCommandInterceptor {
       return from;
     } else {
       int pos = 0;
-      while (n >= 0) {
+      while (n > 0) {
         pos = from.indexOf('\n', pos);
         if (pos == -1) {
           return from;
@@ -130,6 +130,7 @@ public class DiagnosticCommandInterceptor {
   @RuntimeType
   public Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
     if (diagObj == null) {
+      globalArguments.getTargetStream().println("TraceAgent (diagnostic_command): DiagnosticCommand MBean unavailable; interceptor is a no-op.");
       return callable.call();
     } else {
       if (isBefore) {

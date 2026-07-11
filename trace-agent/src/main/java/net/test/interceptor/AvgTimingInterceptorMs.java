@@ -30,10 +30,10 @@ public class AvgTimingInterceptorMs {
 
   private final GlobalArguments globalArguments;
 
-  private volatile long window_min = 0;
-  private volatile long window_max = 0;
-  private volatile long window_sum = 0;
-  private volatile int window_index = 0;
+  private long window_min = 0;
+  private long window_max = 0;
+  private long window_sum = 0;
+  private int window_index = 0;
 
   public AvgTimingInterceptorMs(GlobalArguments globalArguments, String actionArgs, DefaultArguments defaults) {
     ArgumentsCollection parsed = ArgUtils.parseOptionalArgs(KNOWN_ARGS, actionArgs);
@@ -50,35 +50,39 @@ public class AvgTimingInterceptorMs {
     } finally {
       long end = System.currentTimeMillis();
       final long elapsedTime = end - start;
-      window_sum += elapsedTime;
-      window_index++;
-      if (this.window_index == 1) {
-        window_min = elapsedTime;
-        window_max = elapsedTime;
-      } else if (elapsedTime < this.window_min) {
-        window_min = elapsedTime;
-      } else if (elapsedTime > this.window_max) {
-        window_max = elapsedTime;
-      }
-      if (window_index == window_length) {
-        globalArguments
-            .getTargetStream()
-            .println(
-                commonActionArgs.addPrefix(
-                    "TraceAgent ("
-                        + NAME
-                        + "): `"
-                        + method
-                        + "` window_length: "
-                        + window_length
-                        + " min: "
-                        + window_min
-                        + " avg: "
-                        + window_sum / window_length
-                        + " max: "
-                        + window_max));
-        window_index = 0;
-        window_sum = 0;
+      synchronized (this) {
+        window_sum += elapsedTime;
+        window_index++;
+        if (this.window_index == 1) {
+          window_min = elapsedTime;
+          window_max = elapsedTime;
+        } else if (elapsedTime < this.window_min) {
+          window_min = elapsedTime;
+        } else if (elapsedTime > this.window_max) {
+          window_max = elapsedTime;
+        }
+        if (window_index == window_length) {
+          globalArguments
+              .getTargetStream()
+              .println(
+                  commonActionArgs.addPrefix(
+                      "TraceAgent ("
+                          + NAME
+                          + "): `"
+                          + method
+                          + "` window_length: "
+                          + window_length
+                          + " min: "
+                          + window_min
+                          + " avg: "
+                          + window_sum / window_length
+                          + " max: "
+                          + window_max));
+          window_index = 0;
+          window_sum = 0;
+          window_min = 0;
+          window_max = 0;
+        }
       }
     }
   }

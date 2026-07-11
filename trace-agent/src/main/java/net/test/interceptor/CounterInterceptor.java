@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CounterInterceptor {
 
@@ -30,7 +31,7 @@ public class CounterInterceptor {
 
   private final int countFrequency;
 
-  private long counter = 0;
+  private final AtomicLong counter = new AtomicLong(0);
 
   private final GlobalArguments globalArguments;
 
@@ -43,9 +44,9 @@ public class CounterInterceptor {
 
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
-    counter++;
-    if (counter % countFrequency == 0) {
-      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + counter));
+    long current = counter.incrementAndGet();
+    if (current % countFrequency == 0) {
+      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (counter): `" + method + "` called " + current));
     }
     return callable.call();
   }

@@ -2,6 +2,7 @@ package net.test.interceptor;
 
 import net.test.ArgUtils;
 import net.test.ArgumentsCollection;
+import net.test.ArrayToString;
 import net.test.CommonActionArgs;
 import net.test.DefaultArguments;
 import net.test.GlobalArguments;
@@ -39,19 +40,30 @@ public class TraceArgsInterceptor {
     this.globalArguments = globalArguments;
   }
 
+  private static String argsToString(Object[] args) {
+    if (args == null) return "null";
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < args.length; i++) {
+      Object arg = args[i];
+      sb.append(arg != null && arg.getClass().isArray() ? ArrayToString.get(arg) : arg);
+      if (i < args.length - 1) sb.append(", ");
+    }
+    return sb.append("]").toString();
+  }
+
   @RuntimeType
   public Object intercept(@Origin Method method, @AllArguments Object[] allArguments, @SuperCall Callable<?> callable) throws Exception {
     long start = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
     if (this.logThresholdMs == 0) {
       // without logThreshold we can log before the method body so the log lines can keep the ordering of method calls
-      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args pre): `" + method + " called with " + Arrays.toString(allArguments)));
+      globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args pre): `" + method + " called with " + argsToString(allArguments)));
     }
     try {
       return callable.call();
     } finally {
       long end = (this.logThresholdMs == 0) ? 0 : System.currentTimeMillis();
       if (this.logThresholdMs != 0 && end - start >= this.logThresholdMs) {
-        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args post): `" + method + " called with " + Arrays.toString(allArguments)));
+        globalArguments.getTargetStream().println(commonActionArgs.addPrefix("TraceAgent (trace_args post): `" + method + " called with " + argsToString(allArguments)));
       }
     }
   }
