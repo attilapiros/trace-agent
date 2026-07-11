@@ -85,6 +85,17 @@ public class TestTraceAgent {
   }
 
   @Test
+  public void testTraceArgsWithArrayArg() throws IOException {
+    String output = runTraceAgent("trace_args net.test.TestClass2nd methodWithArrayArg");
+    Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);
+    assertTrue(
+        streamSupplier
+            .get()
+            .anyMatch(s -> s.contains(
+                "TraceAgent (trace_args pre): `public void net.test.TestClass2nd.methodWithArrayArg(java.lang.String[]) called with [[foo, bar]]")));
+  }
+
+  @Test
   public void testTraceRetVal() throws IOException {
     String output = runTraceAgent("trace_retval net.test.TestClass2nd methodWithArgs");
     Supplier<Stream<String>> streamSupplier = toStreamSupplier(output);

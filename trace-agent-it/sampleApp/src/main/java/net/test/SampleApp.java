@@ -6,6 +6,7 @@ public class SampleApp {
     TestClass2nd testClass2nd = new TestClass2nd();
     testClass2nd.anotherMethod();
     testClass2nd.methodWithArgs("secret", 42);
+    testClass2nd.methodWithArrayArg(new String[]{"foo", "bar"});
   }
 }
 
@@ -33,5 +34,9 @@ class TestClass2nd {
   public int methodWithArgs(String str, int i) {
     System.out.println("methodWithArgs");
     return 12;
+  }
+
+  public void methodWithArrayArg(String[] items) {
+    System.out.println("methodWithArrayArg");
   }
 }
