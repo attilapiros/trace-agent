@@ -746,6 +746,101 @@ jar uf trace-agent-1.0-SNAPSHOT.jar actions.txt
 # done
 ```
 
+# CLI mode: offline JAR-to-JAR instrumentation
+
+In addition to the Java agent mode, trace-agent can be used as a standalone command-line tool to
+instrument a target JAR **ahead of time** — without attaching to a running JVM. You supply an input
+JAR and an actions file, and the tool writes a new, already-instrumented JAR. The output JAR can
+then be run directly with `java -jar` without any `-javaagent` flag.
+
+This is useful when:
+- The target environment does not permit dynamic Java agent attachment.
+- You want to ship a pre-instrumented artifact.
+- You need to inspect or audit what instrumentation is applied before deploying.
+
+## How it works
+
+The trace-agent fat JAR doubles as an executable CLI tool (`Main-Class: net.test.TraceAgentCli`
+is set alongside `Premain-Class` in the manifest). The CLI reads the input JAR, applies the same
+ByteBuddy transformations that the Java agent would apply at class-load time, and writes a new JAR
+containing the modified classes. All agent support classes (interceptors, etc.) and the ByteBuddy
+runtime are bundled into the output JAR so it has no external runtime dependency on the agent JAR.
+
+## Usage
+
+```
+java -jar trace-agent-1.0-SNAPSHOT.jar \
+    --input  <app.jar>           \
+    --output <instrumented.jar>  \
+    --actions <actions.txt>
+```
+
+### Required arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `--input <jar>` | Path to the JAR file to instrument |
+| `--output <jar>` | Path for the output (instrumented) JAR |
+| `--actions <file>` | Path to the actions file (same format as in Java agent mode) |
+
+### Optional arguments
+
+| Argument | Description |
+| -------- | ----------- |
+| `--dateTimeFormat <pattern>` | `DateTimeFormatter` pattern for log line timestamps (default: `ISO_LOCAL_DATE_TIME`) |
+| `--targetStream stdout\|stderr` | Output stream for trace lines (default: `stdout`) |
+| `--isDateLogged true\|false` | Prefix trace lines with the current date/time (default: `false`) |
+
+## Example
+
+Using the same sample application from earlier:
+
+```bash
+# actions.txt
+elapsed_time_in_ms net.test.TestClass2nd anotherMethod
+trace_args net.test.TestClass2nd methodWithArgs
+```
+
+```
+$ java -jar trace-agent-1.0-SNAPSHOT.jar \
+    --input  testartifact-1.0-SNAPSHOT.jar \
+    --output testartifact-instrumented.jar \
+    --actions actions.txt
+TraceAgentCli loaded 2 action(s)
+TraceAgentCli transforming: testartifact-1.0-SNAPSHOT.jar -> testartifact-instrumented.jar
+JarTransformer transforming: net.test.TestClass2nd
+TraceAgentCli done: testartifact-instrumented.jar
+```
+
+Now run the instrumented JAR — no `-javaagent` needed:
+
+```
+$ java -jar testartifact-instrumented.jar
+Hello World!
+2nd Hello World!
+TraceAgent (timing): `public void net.test.TestClass2nd.anotherMethod()` took 103 ms
+TraceAgent (trace_args pre): `public int net.test.TestClass2nd.methodWithArgs(java.lang.String,int) called with [secret, 42]
+methodWithArgs
+```
+
+## Inspecting what was applied
+
+The output JAR's `META-INF/MANIFEST.MF` records every action that was applied, in order, as
+`Trace-Agent-Action-N` attributes:
+
+```
+$ unzip -p testartifact-instrumented.jar META-INF/MANIFEST.MF
+Manifest-Version: 1.0
+Trace-Agent-Action-1: elapsed_time_in_ms net.test.TestClass2nd anotherMethod
+Trace-Agent-Action-2: trace_args net.test.TestClass2nd methodWithArgs
+Main-Class: net.test.App
+...
+```
+
+The action lines use the same format as the actions file, so the manifest serves as a complete
+record of what was instrumented. All other original manifest attributes (including `Main-Class`) are
+preserved unchanged.
+
 [java-regex]: https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html#sum
 [iso-local-date-time]: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME
 [date-time-formatter]: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
