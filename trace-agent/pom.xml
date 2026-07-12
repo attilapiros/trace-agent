@@ -43,6 +43,7 @@
             <manifestEntries>
               <Premain-Class>${premain}</Premain-Class>
               <Agent-Class>${premain}</Agent-Class>
+              <Main-Class>net.test.TraceAgentCli</Main-Class>
             </manifestEntries>
           </archive>
         </configuration>

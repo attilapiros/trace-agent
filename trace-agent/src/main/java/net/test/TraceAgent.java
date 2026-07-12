@@ -23,7 +23,7 @@ public class TraceAgent {
 
   private Instrumentation instrumentation;
 
-  private TraceAction readAction(String line) {
+  TraceAction readAction(String line) {
     String[] actionWithArgs = line.split("\\s+");
     final GlobalArguments globalArgs = new GlobalArguments(traceAgentArgs.getTargetStream());
     final TraceAction traceAction;
@@ -37,7 +37,7 @@ public class TraceAgent {
     return traceAction;
   }
 
-  private static boolean isBlank(String line) {
+  static boolean isBlank(String line) {
     char[] chars = line.toCharArray();
     for (char c : chars) {
       if (c != ' ' && c != '\t') {
@@ -47,11 +47,11 @@ public class TraceAgent {
     return true;
   }
 
-  private static boolean isComment(String line) {
+  static boolean isComment(String line) {
     return line.charAt(0) == '#';
   }
 
-  private List<TraceAction> readActions(InputStream in) {
+  List<TraceAction> readActions(InputStream in) {
     List<TraceAction> actions = new ArrayList<TraceAction>();
     try {
       try (BufferedReader buffReader = new BufferedReader(new InputStreamReader(in))) {
@@ -117,6 +117,11 @@ public class TraceAgent {
       }
     }
     installActions(allActions);
+  }
+
+  TraceAgent(TraceAgentArgs traceAgentArgs) {
+    this.traceAgentArgs = traceAgentArgs;
+    this.instrumentation = null;
   }
 
   private TraceAgent(TraceAgentArgs traceAgentArgs, Instrumentation instrumentation) {

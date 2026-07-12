@@ -15,7 +15,7 @@ class TraceAction {
 
   private final String methodMatcherExp;
 
-  private final String actionArgs;
+  final String actionArgs;
 
   private final GlobalArguments globalArguments;
 
@@ -65,6 +65,19 @@ class TraceAction {
       interceptor = null;
     }
     return interceptor;
+  }
+
+  public String getActionArgs() {
+    return actionArgs;
+  }
+
+  /** Returns the action formatted as an actions-file line: {@code actionId class method [args]}. */
+  public String toActionLine() {
+    StringBuilder sb = new StringBuilder(actionId).append(' ').append(classMatcherExp).append(' ').append(methodMatcherExp);
+    if (actionArgs != null) {
+      sb.append(' ').append(actionArgs);
+    }
+    return sb.toString();
   }
 
   public <T extends NamedElement> ElementMatcher.Junction<T> getClassMatcher() {

@@ -6,7 +6,7 @@ public class SampleApp {
     TestClass2nd testClass2nd = new TestClass2nd();
     testClass2nd.anotherMethod();
     testClass2nd.methodWithArgs("secret", 42);
-    testClass2nd.methodWithArrayArg(new String[]{"foo", "bar"});
+    testClass2nd.methodWithArrayArg(new String[] {"foo", "bar"});
   }
 }
 
