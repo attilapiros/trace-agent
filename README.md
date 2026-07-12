@@ -5,6 +5,50 @@ rebuild. Its config file called `actions.txt` can be provided as an external res
 embedded within the agent jar this way in a distributed environment just the agent jar should be
 added to the classpath of the different components.
 
+# Table of Contents
+
+* [An example](#an-example)
+   * [The project we would like to trace](#the-project-we-would-like-to-trace)
+   * [Let's trace it](#lets-trace-it)
+   * [The config format](#the-config-format)
+   * [Using regular expressions for matching to class and method names](#using-regular-expressions-for-matching-to-class-and-method-names)
+   * [Parameterization](#parameterization)
+      * [Example for common argument (both global and action argument): isDateLogged](#example-for-common-argument-both-global-and-action-argument-isdatelogged)
+      * [Trace agent global only parameters](#trace-agent-global-only-parameters)
+         * [Specifying formatting of date times in the action logs](#specifying-formatting-of-date-times-in-the-action-logs)
+         * [The external actions file](#the-external-actions-file)
+         * [Select the target output stream: stderr/stdout](#select-the-target-output-stream-stderrstdout)
+         * [Enable agent logging](#enable-agent-logging)
+* [Actions](#actions)
+   * [The counter action](#the-counter-action)
+   * [The avg_timing action](#the-avg_timing-action)
+   * [The trace_login_config action](#the-trace_login_config-action)
+   * [The trace_args_with_method_call action](#the-trace_args_with_method_call-action)
+   * [The diagnostic_command action](#the-diagnostic_command-action)
+      * [The diagnostic_command / gcClassHistogram subaction](#the-diagnostic_command--gcclasshistogram-subaction)
+      * [The diagnostic_command / threadPrint subaction](#the-diagnostic_command--threadprint-subaction)
+      * [The diagnostic_command / vmNativeMemory subaction](#the-diagnostic_command--vmnativememory-subaction)
+   * [The heap_dump action](#the-heap_dump-action)
+* [Summary of Parameters](#summary-of-parameters)
+   * [Actions and supported parameters](#actions-and-supported-parameters)
+* [Some complex examples how to specify a javaagent](#some-complex-examples-how-to-specify-a-javaagent)
+   * [For JVM based languages other than Java (Scala, Clojure, Kotlin, ...)](#for-jvm-based-languages-other-than-java-scala-clojure-kotlin-)
+      * [Example](#example)
+   * [Spark submit](#spark-submit)
+   * [YARN AM](#yarn-am)
+   * [Spark driver client mode](#spark-driver-client-mode)
+   * [Spark driver cluster mode](#spark-driver-cluster-mode)
+   * [Spark executor](#spark-executor)
+   * [Cloudera CDE](#cloudera-cde)
+* [Replacing actions directly into the jar](#replacing-actions-directly-into-the-jar)
+* [CLI mode: offline JAR-to-JAR instrumentation](#cli-mode-offline-jar-to-jar-instrumentation)
+   * [How it works](#how-it-works)
+   * [Usage](#usage)
+      * [Required arguments](#required-arguments)
+      * [Optional arguments](#optional-arguments)
+   * [Example](#example-1)
+   * [Inspecting what was applied](#inspecting-what-was-applied)
+
 
 # An example
 
